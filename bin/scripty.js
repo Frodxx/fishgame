@@ -226,19 +226,22 @@ $(document).ready(function(){
 				if (window.matchMedia("(min-width: 1025px)").matches){
 					//1025 or more
 					$('.container').css({
+						"display": "block",
 						"background-image":"url('img/retbg.jpg')",
 						"width" : "1024px",
-						"height" : "768px",
+						"min-height" : "768px",
 						"background-size" : "1024px 768px"
 					});
 				}
 				else{
 					//1024 or less
 					$('.container').css({
+						"display": "block",
+						"position": "relative",
 						"background-image":"url('img/retbg.jpg')",
 						"background-size" : "1024px 710px",
 						"width" : "100%",
-						"height" : "705px"
+						"min-height" : "705px"
 					});
 				}
 
@@ -257,7 +260,13 @@ $(document).ready(function(){
 
 				$('.fishy').draggable();
 
-				// $('.container').append('<div><button class="btn btn-lg btn-block" id="zero">0</button><button class="btn btn-lg btn-block" id="one">1</button><button class="btn btn-lg btn-block" id="two">2</button><button class="btn btn-lg btn-block" id="three">3</button></div>');
+				$('.container').append('<button id="end" class="btn btn-info pull-right">Fin</button>');
+				
+				$('#end').css({
+					'min-width' : '100px',
+					'margin-top': '520px'
+				})
+				
 				}
 
 			poof = function(){
@@ -277,6 +286,19 @@ $(document).ready(function(){
 				});
 				$('.fishy').draggable("enable");
 			}
+
+			imDone = function(){
+				// msg = {
+				// 		type: 'end',
+				// 		name: window.myuser,
+				// 		color: window.mycolor,
+				// 		message: window.mycatch
+				// 	};
+				// conn.send(JSON.stringify(msg));
+				blockUI();
+			}
+
+			//$('#end').click(console.log("holi"));
 
 
 			$('#readyCheck').bootstrapToggle("off");

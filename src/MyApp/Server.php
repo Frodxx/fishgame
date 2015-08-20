@@ -141,8 +141,8 @@ class Server implements MessageComponentInterface {
 				break;
 
 			case "listen":
-				echo sprintf("Connection %d is now listening\n", $from->resourceId);
 				$from->is_listening = true;
+				echo sprintf("Connection %d is now listening\n", $from->resourceId);
 				$this->listeners += 1;
 				echo sprintf("%d listeners so far\n", $this->listeners);
 
@@ -153,12 +153,12 @@ class Server implements MessageComponentInterface {
 					}
 
 					$id_of_next = $this->guessTurn(); //connectionId of who's next
-					echo "id of next is " . $id_of_next . "\n";
+					echo "Player " . $id_of_next . "'s turn is ahead\n";
 
 					foreach ($this->clients as $client) {
 						echo "I'm at client number " . $client->resourceId . "\n";
 						if ($id_of_next == $client->resourceId) {
-							echo "He's the winner!\n";
+							echo "This player should move now!\n";
 							//
 							$client->my_turn = true;
 
