@@ -260,12 +260,14 @@ $(document).ready(function(){
 
 				$('.fishy').draggable();
 
-				$('.container').append('<button id="end" class="btn btn-info pull-right">Fin</button>');
+				$('.container').append('<button id="endBtn" class="btn btn-info pull-right">Fin</button>');
 				
-				$('#end').css({
+				$('#endBtn').css({
 					'min-width' : '100px',
 					'margin-top': '520px'
 				})
+
+				$('#endBtn').on("click", imDone);
 				
 				}
 
@@ -296,9 +298,8 @@ $(document).ready(function(){
 				// 	};
 				// conn.send(JSON.stringify(msg));
 				blockUI();
+				console.log("holi");
 			}
-
-			//$('#end').click(console.log("holi"));
 
 
 			$('#readyCheck').bootstrapToggle("off");
