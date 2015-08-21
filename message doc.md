@@ -23,10 +23,9 @@ Messages contain the following JSON structure:
 
 The "type" name is checked by clients and the server in order to operate. There are X different "type" values.
 
-- **system**: system messages that are generally sent to one client, like notices or announcements.
-	- Used in [onOpen] and [play] methods.
 - **action**: triggers action messages, such as "/me goes to the Beach" in chat.
 	- Used in [onMessage] method.
+- **end**: used to tell the server a client has finished their turn. This message type is only used in client->server direction.
 - **handshake**: used to assign name and color to a client on new connection.
 	- Used in [assignName] method.
 - **join**: triggers join notices on clients.
@@ -39,6 +38,8 @@ The "type" name is checked by clients and the server in order to operate. There 
 	- Used in [setReady] method.
 - **start**: starts the game on each client.
 	- Used in [play] method.
+- **system**: system messages that are generally sent to one client, like notices or announcements.
+	- Used in [onOpen] and [play] methods.
 - **text**: the standard type of message, when a client sends text in chat.
 	- Used in [onMessage] method.
 - **turn**: triggers UI unblocking on clients when it's their turn. This message type is only used in server->client direction.

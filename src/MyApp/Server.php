@@ -162,8 +162,8 @@ class Server implements MessageComponentInterface {
 							//
 							$client->my_turn = true;
 
-							$jason = ["type" => "turn","name" => $client->uname];
-							$msg = json_encode($jason);
+							$jason = ["type" => "turn","name" => $client->uname, "color" => $client->ucolor];
+							$msg = json_encode($jason); //What is this nonsense WTF
 							break;
 						}
 					}
@@ -171,6 +171,10 @@ class Server implements MessageComponentInterface {
 					$this->broadcast($msg);
 
 				}
+				break;
+
+			case "end":
+				$from->my_turn = false;
 				break;
 
 			}

@@ -1,8 +1,8 @@
 //jquery
 
 $(document).ready(function(){
-
-			var conn = new WebSocket('ws://10.12.131.57:8080');
+			var IP = 'ws://10.12.129.75:8080';
+			var conn = new WebSocket(IP);
 
 			scrollAnimation = function(){
 				$('#chatbox').stop().animate({
@@ -81,6 +81,10 @@ $(document).ready(function(){
 						if(uname == window.myuser){
 							//it is my turn
 							unblockUI();
+							$('#notify').text("It is your turn!");
+						}
+						else{
+							$('#notify').append('It is <span style="font-weight:bold;color:#' + ucolor + '">' + uname + "</span>'s turn!");
 						}
 						break;
 
@@ -245,6 +249,28 @@ $(document).ready(function(){
 					});
 				}
 
+				$('.container').append('<div id="buttonBar"></div>')
+
+				$('#buttonBar').append('<p id="notify" class="bg-warning"></p>');
+
+				$('#buttonBar').css({
+					'position' : 'absolute',
+					'min-width' : '995px',
+					'margin-top' : '720px'
+				});
+
+				$('#notify').css({
+					'border-radius' : '0.3em',
+					'padding': '7px',
+					'display' : 'inline-block'
+				});
+
+				$('#buttonBar').append('<button id="endBtn" class="btn btn-info pull-right">Fin</button>');
+
+				$('#endBtn').css({
+					'min-width' : '100px',				
+				});
+
 				$('.container').append('<img id="amigo" class="fishy" src="img/fish.png">');
 				for (var i = 0; i < 10; i++) {
 					$('.container').append('<img class="fishy" src="img/fish.png">');
@@ -258,14 +284,7 @@ $(document).ready(function(){
         		'filter' : 'FlipH',
         		'-ms-filter' : 'FlipH'});
 
-				$('.fishy').draggable();
-
-				$('.container').append('<button id="endBtn" class="btn btn-info pull-right">Fin</button>');
-				
-				$('#endBtn').css({
-					'min-width' : '100px',
-					'margin-top': '520px'
-				})
+				$('.fishy').draggable();				
 
 				$('#endBtn').on("click", imDone);
 				
@@ -290,13 +309,13 @@ $(document).ready(function(){
 			}
 
 			imDone = function(){
-				// msg = {
-				// 		type: 'end',
-				// 		name: window.myuser,
-				// 		color: window.mycolor,
-				// 		message: window.mycatch
-				// 	};
-				// conn.send(JSON.stringify(msg));
+				 msg = {
+				 		type: 'end',
+				 		name: window.myuser,
+				 		color: window.mycolor,
+				 		message: window.mycatch
+				 	};
+				conn.send(JSON.stringify(msg));
 				blockUI();
 				console.log("holi");
 			}
