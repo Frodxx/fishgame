@@ -141,9 +141,11 @@ class Server implements MessageComponentInterface {
 				break;
 
 			case "listen":
-				$from->is_listening = true;
+				if ($from->is_listening == false) {
+					$from->is_listening = true;
+					$this->listeners += 1;
+				}
 				echo sprintf("Connection %d is now listening\n", $from->resourceId);
-				$this->listeners += 1;
 				echo sprintf("%d listeners so far\n", $this->listeners);
 
 				if ($this->listeners == MAXCLIENTS) {
@@ -190,10 +192,13 @@ class Server implements MessageComponentInterface {
 		This is the socket (client) who is leaving the application.
 		*/
 		echo "Connection {$conn->resourceId} has disconnected\n";
-		$conn->close();
+		echo "Listeners before disconnect $this->listeners\n";
 		if ($conn->is_listening) {
-			$this->listeners -= 1;
+			echo "holi";
+			$this->listeners = $this->listeners - 1;
 		}
+		$conn->close();
+		echo "Listeners after disconnect $this->listeners\n";
 
 		$this->clients->detach($conn);
 		$this->tellPart($conn);
