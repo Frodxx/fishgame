@@ -7,7 +7,7 @@ use MyApp\Server;
 
     require dirname(__DIR__) . '/vendor/autoload.php';
 
-    $checkedApp = new OriginCheck(new WsServer(new Server()), array('10.12.131.57'));
+    $checkedApp = new OriginCheck(new WsServer(new Server()), array('10.12.129.75'));
     $checkedApp->allowedOrigins[] = 'localhost';
 
     $server = IoServer::factory(new HttpServer($checkedApp), 8080);

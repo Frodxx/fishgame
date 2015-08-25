@@ -165,7 +165,7 @@ class Server implements MessageComponentInterface {
 							$client->my_turn = true;
 
 							$jason = ["type" => "turn","name" => $client->uname, "color" => $client->ucolor];
-							$msg = json_encode($jason); //What is this nonsense WTF
+							$msg = json_encode($jason);
 							break;
 						}
 					}
@@ -177,6 +177,22 @@ class Server implements MessageComponentInterface {
 
 			case "end":
 				$from->my_turn = false;
+				break;
+
+			case "who":
+				$id_of_next = $this->guessTurn();
+				foreach ($this->clients as $client) {
+						//echo "I'm at client number " . $client->resourceId . "\n";
+						if ($id_of_next == $client->resourceId) {
+							//echo "This player should move now!\n";
+							$client->my_turn = true;
+
+							$jason = ["type" => "turn","name" => $client->uname, "color" => $client->ucolor];
+							$msg = json_encode($jason);
+							break;
+						}
+					}
+				$from->send($msg);
 				break;
 
 			}
@@ -192,13 +208,10 @@ class Server implements MessageComponentInterface {
 		This is the socket (client) who is leaving the application.
 		*/
 		echo "Connection {$conn->resourceId} has disconnected\n";
-		echo "Listeners before disconnect $this->listeners\n";
 		if ($conn->is_listening) {
-			echo "holi";
 			$this->listeners = $this->listeners - 1;
 		}
 		$conn->close();
-		echo "Listeners after disconnect $this->listeners\n";
 
 		$this->clients->detach($conn);
 		$this->tellPart($conn);

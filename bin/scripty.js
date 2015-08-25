@@ -35,62 +35,83 @@ $(document).ready(function(){
 				switch(msgtype) {
 
 					case 'system':
-						$('#chatbox').append("<div>"+timestamp()+'<span style="font-weight: bold;color:#' +ucolor+'">'+uname + "</span>: "+rcvdmessage+"</div>");
-						scrollAnimation();
+						if (window.playing == false){
+							$('#chatbox').append("<div>"+timestamp()+'<span style="font-weight: bold;color:#' +ucolor+'">'+uname + "</span>: "+rcvdmessage+"</div>");
+							scrollAnimation();
+						}
+						else{
+							$('#notify').html("<div>"+timestamp()+'<span style="font-weight: bold;color:#' +ucolor+'">'+uname + "</span>: "+rcvdmessage+"</div>");
+						}
 						break;
 
 					case 'handshake':
 						window.myuser = uname;
 						window.mycolor = ucolor;
 						window.mycatch = 0;
+						window.playing = false;
+						window.myturn = false;
 
 						$('#chatbox').append('<div>Tu nombre es <span style="font-weight: bold;color:#' +mycolor+'">'+myuser + '</span>.<hr></div>');
 						break;
 
 					case 'text':
-						$('#chatbox').append("<div>"+timestamp()+'<span style="font-weight: bold;color:#' +ucolor+'">'+uname + "</span>: "+rcvdmessage+"</div>");
-						scrollAnimation();
+						if (window.playing == false){
+							$('#chatbox').append("<div>"+timestamp()+'<span style="font-weight: bold;color:#' +ucolor+'">'+uname + "</span>: "+rcvdmessage+"</div>");
+							scrollAnimation();
+						}
 						break;
 
 					case 'join':
-						$('#chatbox').append('<div class="bg-success">'+timestamp()+'<span style="font-weight: bold;color:#' +ucolor+'">'+uname + "</span> se ha unido a la sala.</div>");
-						scrollAnimation();
+						if (window.playing == false){
+							$('#chatbox').append('<div class="bg-success">'+timestamp()+'<span style="font-weight: bold;color:#' +ucolor+'">'+uname + "</span> se ha unido a la sala.</div>");
+							scrollAnimation();
+						}
 						break;
 
 					case 'part':
-						$('#chatbox').append('<div class="bg-warning">'+timestamp()+'<span style="font-weight: bold;color:#' +ucolor+'">'+uname + "</span> ha salido de la sala.</div>");
-						scrollAnimation();
+						if (window.playing == false){
+							$('#chatbox').append('<div class="bg-warning">'+timestamp()+'<span style="font-weight: bold;color:#' +ucolor+'">'+uname + "</span> ha salido de la sala.</div>");
+							scrollAnimation();	
+						}
 						break;
 
 					case 'action':
-						$('#chatbox').append("<div>"+timestamp()+'<span style="font-weight: bold;font-style:italic;color:#' +ucolor+'">'+uname + '</span> <span style="font-style:italic;">'+rcvdmessage+"</span></div>");
-						scrollAnimation();
+						if (window.playing == false){
+							$('#chatbox').append("<div>"+timestamp()+'<span style="font-weight: bold;font-style:italic;color:#' +ucolor+'">'+uname + '</span> <span style="font-style:italic;">'+rcvdmessage+"</span></div>");
+							scrollAnimation();
+						}
 						break;
 
 					case 'ready':
-						$('#chatbox').append("<div>"+timestamp()+'<span style="font-style:italic"><span style="font-weight: bold;color:#' +ucolor+'">'+uname + '</span> <span style="font-style:italic;"></span>est&aacute; listo</div></span>');
-						scrollAnimation();
+						if (window.playing==false){
+							$('#chatbox').append("<div>"+timestamp()+'<span style="font-style:italic"><span style="font-weight: bold;color:#' +ucolor+'">'+uname + '</span> <span style="font-style:italic;"></span>est&aacute; listo</div></span>');
+							scrollAnimation();
+						}
 						break;
 
 					case 'unready':
-						$('#chatbox').append("<div>"+timestamp()+'<span style="font-style:italic"><span style="font-weight: bold;color:#' +ucolor+'">'+uname + '</span> <span style="font-style:italic;"></span>dejó de estar listo</div></span>');
-						scrollAnimation();
+						if (window.playing == false){
+							$('#chatbox').append("<div>"+timestamp()+'<span style="font-style:italic"><span style="font-weight: bold;color:#' +ucolor+'">'+uname + '</span> <span style="font-style:italic;"></span>dejó de estar listo</div></span>');
+							scrollAnimation();
+						}
 						break;
 
 					case 'turn':
 						if(uname == window.myuser){
 							//it is my turn
+							window.myturn = true;
 							unblockUI();
-							$('#notify').text("It is your turn!");
+							$('#notify').html("It is your turn!");
 						}
 						else{
-							$('#notify').append('It is <span style="font-weight:bold;color:#' + ucolor + '">' + uname + "</span>'s turn!");
+							$('#notify').html('It is <span style="font-weight:bold;color:#' + ucolor + '">' + uname + "</span>'s turn!");
 						}
 						break;
 
 					case 'start':
 
-						$('#readyCheck').attr("data-onstyle", "default");
+						if (window.playing == false){
+							$('#readyCheck').attr("data-onstyle", "default");
 						$('#readyCheck').attr("disabled", true);
 
 						$('#chatbox').append("<div>"+timestamp()+'<span style="font-style:italic"><span style="font-weight: bold;color:#999999">System</span>: 3</div>');
@@ -106,15 +127,23 @@ $(document).ready(function(){
 						setTimeout(function(){
 							gameInit();
 						}, 3000);
+						}
 						break;
-
 					}
 			}
 
 
 			conn.onclose = function(e){
-				$('#chatbox').append('<div class="bg-danger">'+timestamp()+'Desconectado.</div>');
-				$('#chatInput').prop('disabled', true);
+				console.log("Socket connection ended.");
+				if (window.playing == false) {
+					$('#chatbox').append('<div class="bg-danger">'+timestamp()+'Desconectado.</div>');
+					$('#chatInput').prop('disabled', true);
+				}
+				else{
+					console.log("why");
+					blockUI();
+					$('#notify').html('<div class="bg-danger">'+timestamp()+'Desconectado.</div>');
+				}
 			}
 
 
@@ -210,7 +239,8 @@ $(document).ready(function(){
 
 
 			gameInit = function(){
-				showcase(); //just for showing off purposes
+				window.playing = true;
+				buildUI(); //just for showing off purposes
 				blockUI();
 
 				//send message UI is now blocked
@@ -223,8 +253,7 @@ $(document).ready(function(){
 				conn.send(JSON.stringify(msg));
 			}
 
-
-			showcase = function(){
+			buildUI = function(){
 				$('.container').html("");
 
 				if (window.matchMedia("(min-width: 1025px)").matches){
@@ -268,7 +297,14 @@ $(document).ready(function(){
 				$('#buttonBar').append('<button id="endBtn" class="btn btn-info pull-right">Fin</button>');
 
 				$('#endBtn').css({
-					'min-width' : '100px',				
+					'min-width' : '100px'
+				});
+
+				$('#buttonBar').append('<button id="resetBtn" class="btn btn-warning pull-right">Reset</button>');
+
+				$('#resetBtn').css({
+					'min-width' : '100px',
+					'margin-right' : '15px'
 				});
 
 				$('.container').append('<img id="amigo" class="fishy" src="img/fish.png">');
@@ -282,13 +318,23 @@ $(document).ready(function(){
         		'-webkit-transform' : 'scaleX(-1)',
         		'transform': 'scaleX(-1)',
         		'filter' : 'FlipH',
-        		'-ms-filter' : 'FlipH'});
-
+        		'-ms-filter' : 'FlipH'});			
 				$('.fishy').draggable();				
+				$('#endBtn').click(imDone);
+				$('#resetBtn').click(resetUI);
 
-				$('#endBtn').on("click", imDone);
-				
+				blockUI();
+
+				if (window.myturn){
+					$('#notify').html("It is your turn!");
+					unblockUI();
 				}
+			}
+
+			resetUI = function(){
+				buildUI();
+				window.mycatch = 0;	
+			}
 
 			poof = function(){
 				$(this).css("visibility", "hidden");
@@ -298,14 +344,16 @@ $(document).ready(function(){
 			blockUI = function(){
 				$('.fishy').off("click");
 				$('.fishy').draggable("disable");
+				$('.btn').attr('disabled','disabled');
 			}
 
 			unblockUI = function(){
-				$('.fishy').on("click", poof);
+				$('.fishy').click(poof);
+				$('.fishy').draggable("enable");
 				$('.fishy').draggable({
 					containment: "parent"
 				});
-				$('.fishy').draggable("enable");
+				$('.btn').removeAttr('disabled');
 			}
 
 			imDone = function(){
@@ -317,9 +365,7 @@ $(document).ready(function(){
 				 	};
 				conn.send(JSON.stringify(msg));
 				blockUI();
-				console.log("holi");
 			}
-
 
 			$('#readyCheck').bootstrapToggle("off");
 
