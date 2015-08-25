@@ -140,7 +140,6 @@ $(document).ready(function(){
 					$('#chatInput').prop('disabled', true);
 				}
 				else{
-					console.log("why");
 					blockUI();
 					$('#notify').html('<div class="bg-danger">'+timestamp()+'Desconectado.</div>');
 				}
@@ -337,8 +336,15 @@ $(document).ready(function(){
 			}
 
 			poof = function(){
-				$(this).css("visibility", "hidden");
-				window.mycatch += 1;
+				if (window.mycatch < 3) {
+					$(this).css("visibility", "hidden");
+					window.mycatch += 1;
+					$('#notify').html('You caught <span style="font-weight:bold">' + window.mycatch + "</span>!");
+				}
+				else{
+					$('.fishy').off("click");
+					$('.fishy').draggable("disable");
+				}
 			}
 
 			blockUI = function(){

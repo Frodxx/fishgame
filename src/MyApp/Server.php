@@ -44,7 +44,6 @@ class Server implements MessageComponentInterface {
 		$this->clients = new \SplObjectStorage;
 	}
 
-
 	public function onOpen(ConnectionInterface $conn) {
 		/*!
 		Triggers when a client connects to the server.
@@ -67,7 +66,7 @@ class Server implements MessageComponentInterface {
 			$conn->my_turn = false; // Is it their turn now?
 			$conn->my_moves = 0; // how many times have I moved idk why
 			$conn->tech = 0; // Preferred fishing technique. (0-3)
-			$conn->catch = array(); // This array contains the score of this client
+			$conn->my_catch = array(); // This array contains the score of this client
 		}
 
 		else{
@@ -155,13 +154,13 @@ class Server implements MessageComponentInterface {
 					}
 
 					$id_of_next = $this->guessTurn(); //connectionId of who's next
-					echo "Player " . $id_of_next . "'s turn is ahead\n";
+					echo "-----------------\n";
+					echo sprintf("Player " . $id_of_next . " is now playing \n");
 
 					foreach ($this->clients as $client) {
-						echo "I'm at client number " . $client->resourceId . "\n";
+						//echo "I'm at client number " . $client->resourceId . "\n";
 						if ($id_of_next == $client->resourceId) {
-							echo "This player should move now!\n";
-							//
+							//echo "This player should move now!\n";
 							$client->my_turn = true;
 
 							$jason = ["type" => "turn","name" => $client->uname, "color" => $client->ucolor];
@@ -177,22 +176,12 @@ class Server implements MessageComponentInterface {
 
 			case "end":
 				$from->my_turn = false;
-				break;
-
-			case "who":
-				$id_of_next = $this->guessTurn();
-				foreach ($this->clients as $client) {
-						//echo "I'm at client number " . $client->resourceId . "\n";
-						if ($id_of_next == $client->resourceId) {
-							//echo "This player should move now!\n";
-							$client->my_turn = true;
-
-							$jason = ["type" => "turn","name" => $client->uname, "color" => $client->ucolor];
-							$msg = json_encode($jason);
-							break;
-						}
-					}
-				$from->send($msg);
+				$from->my_moves += 1;
+				$from->my_catch = array_merge($from->my_catch, array($nohtml)); //What the actual fuck
+				echo sprintf("Player %d has finished their turn \n", $from->resourceId);
+				echo "Their catch so far is as follows:\n";
+				print_r($from->my_catch);
+				echo "-----------------\n";
 				break;
 
 			}
