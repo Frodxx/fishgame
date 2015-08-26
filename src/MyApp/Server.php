@@ -39,6 +39,7 @@ class Server implements MessageComponentInterface {
 	
 	protected $clients;/*!<	A SplObjectStorage that holds connection objects (sockets). */
 	protected $listeners = 0; /*!< Helper variable to storage number of listening clients when the game is running */
+	protected $maxpop = MAXPOP;
 
 	public function __construct() {
 		$this->clients = new \SplObjectStorage;
@@ -182,6 +183,13 @@ class Server implements MessageComponentInterface {
 				echo "Their catch so far is as follows:\n";
 				print_r($from->my_catch);
 				echo "-----------------\n";
+
+				$this->maxpop = $this->maxpop - intval($nohtml);
+
+				$jason = ["type" => "catch", "name" => $from->uname, "color" => $from->ucolor, "message" => $nohtml];
+				$msg = json_encode($jason);
+				$this->broadcast($msg);
+
 				break;
 
 			}
@@ -338,8 +346,9 @@ class Server implements MessageComponentInterface {
 		$jason = ["type" => "system", "message" => "Starting game", "name" => "System", "color" => "999999"];
 		$msg = json_encode($jason);
 		$this->broadcast($msg);
+		$this->maxpop = MAXPOP;
 
-		$jason = ["type" => "start", "name" => "System"];
+		$jason = ["type" => "start", "message" => $this->maxpop];
 		$msg = json_encode($jason);
 		$this->broadcast($msg);
 

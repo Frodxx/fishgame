@@ -108,25 +108,36 @@ $(document).ready(function(){
 						}
 						break;
 
+					case 'catch':
+						window.pop -= rcvdmessage;
+						console.log(window.pop);
+
+						if (uname != window.myuser){
+							$('#notify').html('<span style="font-weight:bold;color:#' + ucolor + '">' + uname + "</span> caught " + rcvdmessage+" units!");
+							$('.container').find(".fishy:nth-last-child(-n+"+rcvdmessage+ ")").remove();
+
+						}
+
 					case 'start':
 
 						if (window.playing == false){
 							$('#readyCheck').attr("data-onstyle", "default");
-						$('#readyCheck').attr("disabled", true);
+							$('#readyCheck').attr("disabled", true);
 
-						$('#chatbox').append("<div>"+timestamp()+'<span style="font-style:italic"><span style="font-weight: bold;color:#999999">System</span>: 3</div>');
+							$('#chatbox').append("<div>"+timestamp()+'<span style="font-style:italic"><span style="font-weight: bold;color:#999999">System</span>: 3</div>');
 
-						setTimeout(function(){
-							$('#chatbox').append("<div>"+timestamp()+'<span style="font-style:italic"><span style="font-weight: bold;color:#999999">System</span>: 2</div>');
-						}, 1000);
+							setTimeout(function(){
+								$('#chatbox').append("<div>"+timestamp()+'<span style="font-style:italic"><span style="font-weight: bold;color:#999999">System</span>: 2</div>');
+							}, 1000);
 
-						setTimeout(function(){
-							$('#chatbox').append("<div>"+timestamp()+'<span style="font-style:italic"><span style="font-weight: bold;color:#999999">System</span>: 1</div>');
-						}, 2000);
+							setTimeout(function(){
+								$('#chatbox').append("<div>"+timestamp()+'<span style="font-style:italic"><span style="font-weight: bold;color:#999999">System</span>: 1</div>');
+							}, 2000);
 
-						setTimeout(function(){
-							gameInit();
-						}, 3000);
+							setTimeout(function(){
+								window.pop = rcvdmessage;
+								gameInit();
+							}, 3000);
 						}
 						break;
 					}
@@ -307,9 +318,11 @@ $(document).ready(function(){
 				});
 
 				$('.container').append('<img id="amigo" class="fishy" src="img/fish.png">');
-				for (var i = 0; i < 10; i++) {
+				for (var i = 0; i < window.pop; i++) {
 					$('.container').append('<img class="fishy" src="img/fish.png">');
-				};
+				}
+
+				$
 
 				$('#amigo').css({
 					'-moz-transform': 'scaleX(-1)',
