@@ -38,7 +38,7 @@ class Server implements MessageComponentInterface {
 
 	
 	protected $clients;/*!<	A SplObjectStorage that holds connection objects (sockets). */
-	protected $listeners = 0; /*!< Helper variable to storage number of listening clients when the game is running */
+	protected $listeners; /*!< Helper variable to storage number of listening clients when the game is running */
 	protected $maxpop = MAXPOP;
 
 	public function __construct() {
@@ -141,38 +141,20 @@ class Server implements MessageComponentInterface {
 				break;
 
 			case "listen":
+				$this->listeners = 0;
 				if ($from->is_listening == false) {
 					$from->is_listening = true;
-					$this->listeners += 1;
 				}
+
+				foreach ($this->clients as $client) {
+					if ($client->is_listening) {
+						$this->listeners += 1;
+					}
+				}
+
 				echo sprintf("Connection %d is now listening\n", $from->resourceId);
 				echo sprintf("%d listeners so far\n", $this->listeners);
-
-				if ($this->listeners == MAXCLIENTS) {
-
-					foreach ($this->clients as $client) {
-						$client->my_turn = false; //set everybody's turn as false
-					}
-
-					$id_of_next = $this->guessTurn(); //connectionId of who's next
-					echo "-----------------\n";
-					echo sprintf("Player " . $id_of_next . " is now playing \n");
-
-					foreach ($this->clients as $client) {
-						//echo "I'm at client number " . $client->resourceId . "\n";
-						if ($id_of_next == $client->resourceId) {
-							//echo "This player should move now!\n";
-							$client->my_turn = true;
-
-							$jason = ["type" => "turn","name" => $client->uname, "color" => $client->ucolor];
-							$msg = json_encode($jason);
-							break;
-						}
-					}
-
-					$this->broadcast($msg);
-
-				}
+				$this->assignTurn();
 				break;
 
 			case "end":
@@ -190,6 +172,8 @@ class Server implements MessageComponentInterface {
 				$msg = json_encode($jason);
 				$this->broadcast($msg);
 
+				usleep(1000000);
+				$this->assignTurn();
 				break;
 
 			}
@@ -205,8 +189,10 @@ class Server implements MessageComponentInterface {
 		This is the socket (client) who is leaving the application.
 		*/
 		echo "Connection {$conn->resourceId} has disconnected\n";
-		if ($conn->is_listening) {
-			$this->listeners = $this->listeners - 1;
+		if (isset($conn->is_listening)){
+			if ($conn->is_listening){
+				$this->listeners = $this->listeners - 1;
+			}
 		}
 		$conn->close();
 
@@ -233,6 +219,36 @@ class Server implements MessageComponentInterface {
 
 		$usermsg = json_encode($jason);
 		$conn->send($usermsg);
+	}
+
+	public function assignTurn(){
+		/*!
+		Assigns turn to who is next.
+		*/
+		if ($this->listeners == MAXCLIENTS) {
+
+			foreach ($this->clients as $client) {
+				$client->my_turn = false; //set everybody's turn as false
+			}
+
+			$id_of_next = $this->guessTurn(); //connectionId of who's next
+			echo "-----------------\n";
+			echo sprintf("Player " . $id_of_next . " is now playing \n");
+
+			foreach ($this->clients as $client) {
+				//echo "I'm at client number " . $client->resourceId . "\n";
+				if ($id_of_next == $client->resourceId) {
+					//echo "This player should move now!\n";
+					$client->my_turn = true;
+
+					$jason = ["type" => "turn","name" => $client->uname, "color" => $client->ucolor];
+					$msg = json_encode($jason);
+					break;
+				}
+			}
+			$this->broadcast($msg);
+		}
+
 	}
 
 	public function guessTurn(){
@@ -337,6 +353,22 @@ class Server implements MessageComponentInterface {
 		/*!
 		Override with exception handling and such.
 		*/
+	}
+
+	public function resetValues(){
+		/*!
+		Reset values for each player.
+		Useful if you need to restart the game with
+		the same clients connected.
+		*/
+		foreach ($this->clients as $client) {
+			$client->is_ready = false;
+			$client->is_listening = false;
+			$client->my_turn = false;
+			$client->my_moves = 0;
+			unset($client->my_catch);
+			$client->my_catch = array();
+		}
 	}
 
 	public function play(){

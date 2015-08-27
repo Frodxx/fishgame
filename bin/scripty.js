@@ -20,6 +20,7 @@ $(document).ready(function(){
 
 			conn.onopen = function(e){
 				$('#chatbox').append('<div class="bg-info">' + timestamp() + 'Conectado.</div>');
+				window.playing = false;
 			}
 
 
@@ -48,7 +49,7 @@ $(document).ready(function(){
 						window.myuser = uname;
 						window.mycolor = ucolor;
 						window.mycatch = 0;
-						window.playing = false;
+						window.myaccum = 0;
 						window.myturn = false;
 
 						$('#chatbox').append('<div>Tu nombre es <span style="font-weight: bold;color:#' +mycolor+'">'+myuser + '</span>.<hr></div>');
@@ -72,6 +73,12 @@ $(document).ready(function(){
 						if (window.playing == false){
 							$('#chatbox').append('<div class="bg-warning">'+timestamp()+'<span style="font-weight: bold;color:#' +ucolor+'">'+uname + "</span> ha salido de la sala.</div>");
 							scrollAnimation();	
+						}
+						else{
+							$('#notify').html('<div class="bg-warning">'+timestamp()+'<span style="font-weight: bold;color:#' +ucolor+'">'+uname + "</span> ha salido de la sala y el juego tuvo que cancelarse.</div>");
+							setTimeout(function(){
+								$('#notify').html('Reiniciando el juego...')},2500);
+							setTimeout(function(){location.reload(true)}, 4500);
 						}
 						break;
 
@@ -100,7 +107,7 @@ $(document).ready(function(){
 						if(uname == window.myuser){
 							//it is my turn
 							window.myturn = true;
-							unblockUI();
+							resetUI();
 							$('#notify').html("It is your turn!");
 						}
 						else{
@@ -110,12 +117,10 @@ $(document).ready(function(){
 
 					case 'catch':
 						window.pop -= rcvdmessage;
-						console.log(window.pop);
 
 						if (uname != window.myuser){
 							$('#notify').html('<span style="font-weight:bold;color:#' + ucolor + '">' + uname + "</span> caught " + rcvdmessage+" units!");
 							$('.container').find(".fishy:nth-last-child(-n+"+rcvdmessage+ ")").remove();
-
 						}
 
 					case 'start':
@@ -250,20 +255,12 @@ $(document).ready(function(){
 
 			gameInit = function(){
 				window.playing = true;
-				buildUI(); //just for showing off purposes
+				buildPlayground(); //just for showing off purposes
 				blockUI();
-
-				//send message UI is now blocked
-				msg = {
-							type: 'listen',
-							name: window.myuser,
-							color: window.mycolor,
-						};
-
-				conn.send(JSON.stringify(msg));
+				setListening();
 			}
 
-			buildUI = function(){
+			buildPlayground = function(){
 				$('.container').html("");
 
 				if (window.matchMedia("(min-width: 1025px)").matches){
@@ -316,8 +313,7 @@ $(document).ready(function(){
 					'min-width' : '100px',
 					'margin-right' : '15px'
 				});
-
-				$('.container').append('<img id="amigo" class="fishy" src="img/fish.png">');
+				
 				for (var i = 0; i < window.pop; i++) {
 					$('.container').append('<img class="fishy" src="img/fish.png">');
 				}
@@ -344,7 +340,7 @@ $(document).ready(function(){
 			}
 
 			resetUI = function(){
-				buildUI();
+				buildPlayground();
 				window.mycatch = 0;	
 			}
 
@@ -375,6 +371,17 @@ $(document).ready(function(){
 				$('.btn').removeAttr('disabled');
 			}
 
+			setListening = function(){
+				//send message UI is now blocked
+				msg = {
+							type: 'listen',
+							name: window.myuser,
+							color: window.mycolor,
+						};
+
+				conn.send(JSON.stringify(msg));
+			}
+
 			imDone = function(){
 				 msg = {
 				 		type: 'end',
@@ -384,10 +391,15 @@ $(document).ready(function(){
 				 	};
 				conn.send(JSON.stringify(msg));
 				blockUI();
+				window.myaccum += window.mycatch;
+			}
+
+			buildLobby = function(){
+				$('.container').html('<div class="page-header"><h1>The Fishgame <small>Room</small></h1></div><div id="chatContainer" class="well"><div id="chatbox">&iexcl;Bienvenido a la sala! Aqu&iacute; aparecer&aacute;n los mensajes.</div><div class="controls"><form><div class="form-group"><label class="sr-only" for="chatInput">Mensaje</label><input type="text" class="form-control" id="chatInput" placeholder="Mensaje" maxlength="100"></div><button id="sendButton" type="button" class="btn btn-default">Enviar</button><input id="readyCheck" type="checkbox" data-size="normal" data-on="¡Listo!" data-off="¿Listo?" data-onstyle="success" data-toggle="toggle"></form></div></div>');
+				$('#chatbox').append('<div>Tu nombre es <span style="font-weight: bold;color:#' +mycolor+'">'+myuser + '</span>.<hr></div>');
 			}
 
 			$('#readyCheck').bootstrapToggle("off");
-
 			$('#sendButton').click(sendMsg);
 			$('#readyCheck').change(setReady);
 		});

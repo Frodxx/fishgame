@@ -25,6 +25,8 @@ The "type" name is checked by clients and the server in order to operate. There 
 
 - **action**: triggers action messages, such as "/me goes to the Beach" in chat.
 	- Used in [onMessage] method.
+- **catch**: used to tell players a specific client has caught some fish. This message type is only used in server->client direction.
+	-Used in [onMessage] method.
 - **end**: used to tell the server a client has finished their turn. This message type is only used in client->server direction.
 - **handshake**: used to assign name and color to a client on new connection.
 	- Used in [assignName] method.
