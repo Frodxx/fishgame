@@ -215,7 +215,7 @@ class Server implements MessageComponentInterface {
 		$conn->uname = $names[mt_rand(0, count($names)-1)]; // Random name of the player.
 		$conn->ucolor = $colors[mt_rand(0, count($colors)-1)]; // Random color of the player.
 
-		$jason = ["type" => "handshake","name" => $conn->uname, "color" => $conn->ucolor];
+		$jason = ["type" => "handshake","name" => $conn->uname, "color" => $conn->ucolor, "message" => $conn->resourceId];
 
 		$usermsg = json_encode($jason);
 		$conn->send($usermsg);
@@ -241,7 +241,7 @@ class Server implements MessageComponentInterface {
 					//echo "This player should move now!\n";
 					$client->my_turn = true;
 
-					$jason = ["type" => "turn","name" => $client->uname, "color" => $client->ucolor];
+					$jason = ["type" => "turn","name" => $client->uname, "color" => $client->ucolor, "message" => $client->resourceId];
 					$msg = json_encode($jason);
 					break;
 				}

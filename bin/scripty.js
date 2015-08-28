@@ -46,6 +46,7 @@ $(document).ready(function(){
 						break;
 
 					case 'handshake':
+						window.myid = rcvdmessage;
 						window.myuser = uname;
 						window.mycolor = ucolor;
 						window.mycatch = 0;
@@ -104,7 +105,7 @@ $(document).ready(function(){
 						break;
 
 					case 'turn':
-						if(uname == window.myuser){
+						if(rcvdmessage == window.myid){
 							//it is my turn
 							window.myturn = true;
 							resetUI();
