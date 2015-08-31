@@ -140,26 +140,26 @@ $(document).ready(function(){
 						buildLobby();
 						$('#chatbox').append('<div id="placeholder" style="width:700px;height:350px;"></div>');
 
-						$.getScript("jquery.flot.js", function(){
-							var options = {
-								series: {
-									lines: {show: true},
-									points: {show: true}
-								}
-							};
+						// $.getScript("jquery.flot.js", function(){
+						// 	var options = {
+						// 		series: {
+						// 			lines: {show: true},
+						// 			points: {show: true}
+						// 		}
+						// 	};
 
-							var catchy = []; //aux
-							var new_catches = [];
+						// 	var catchy = []; //aux
+						// 	var new_catches = [];
 
-							for (var i = 0; i <= catches.length; i++) {
-								for (var j = 0; j <= catches[i].length; i++) {
-									catchy.push(i+1, catches[i][j]);
-								};
-								new_catches.push(catchy);
-							};
+						// 	for (var i = 0; i <= catches.length; i++) {
+						// 		for (var j = 0; j <= catches[i].length; i++) {
+						// 			catchy.push(i+1, catches[i][j]);
+						// 		};
+						// 		new_catches.push(catchy);
+						// 	};
 
-						  $.plot($('#placeholder'), [new_catches], options);
-							});
+						//   $.plot($('#placeholder'), [new_catches], options);
+						// 	});
 						break;
 
 
