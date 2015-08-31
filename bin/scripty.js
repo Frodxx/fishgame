@@ -1,7 +1,7 @@
 //jquery
 
 $(document).ready(function(){
-			var IP = 'ws://10.12.129.75:8080';
+			var IP = 'ws://192.168.1.71:8080';
 			var conn = new WebSocket(IP);
 
 			scrollAnimation = function(){
@@ -123,10 +123,18 @@ $(document).ready(function(){
 							$('#notify').html('<span style="font-weight:bold;color:#' + ucolor + '">' + uname + "</span> caught " + rcvdmessage+" units!");
 							$('.container').find(".fishy:nth-last-child(-n+"+rcvdmessage+ ")").remove();
 						}
+						break;
+
+					case 'repop':
+						window.pop = rcvdmessage;
+						buildPlayground();
+						break;
+
 
 					case 'start':
 
 						if (window.playing == false){
+							window.playing = true;
 							$('#readyCheck').attr("data-onstyle", "default");
 							$('#readyCheck').attr("disabled", true);
 

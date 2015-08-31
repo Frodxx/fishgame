@@ -34,12 +34,20 @@ Maximum fish population per game.
 
 define("MAXPOP", 20);
 
+/*!
+Fish regeneration ratio.
+*/
+
+define("REGEN", 0.25);
+
 class Server implements MessageComponentInterface {
 
 	
 	protected $clients;/*!<	A SplObjectStorage that holds connection objects (sockets). */
 	protected $listeners; /*!< Helper variable to storage number of listening clients when the game is running */
-	protected $maxpop = MAXPOP;
+	protected $pop;
+	protected $maxrounds = 0;
+	protected $round = 0;
 
 	public function __construct() {
 		$this->clients = new \SplObjectStorage;
@@ -166,17 +174,29 @@ class Server implements MessageComponentInterface {
 				print_r($from->my_catch);
 				echo "-----------------\n";
 
-				$this->maxpop = $this->maxpop - intval($nohtml);
+				$this->pop = $this->pop - intval($nohtml);
 
 				$jason = ["type" => "catch", "name" => $from->uname, "color" => $from->ucolor, "message" => $nohtml];
 				$msg = json_encode($jason);
 				$this->broadcast($msg);
 
-				usleep(1000000);
+				// usleep(1000000);
+				$roundy = array();
+
+				foreach ($this->clients as $client) {
+					$roundy[] = $client->my_moves;
+				}
+
+				if (array_sum($roundy) % MAXCLIENTS == 0) {
+					//round is complete
+					$this->endRound();
+				}
+
 				$this->assignTurn();
 				break;
 
-			}
+		}
+
 	}
 
 
@@ -371,6 +391,25 @@ class Server implements MessageComponentInterface {
 		}
 	}
 
+	public function endRound(){
+		/*!
+		Ends the round.
+		Adds regeneration and notify everybody
+		*/
+
+		$this->pop = floor($this->pop * (1 + REGEN));
+		echo $this->pop;
+
+		$jason = ["type" => "system", "message" => "A new round has begun!", "name" => "System", "color" => "999999"];
+		$msg = json_encode($jason);
+		$this->broadcast($msg);
+
+		$jason = ["type" => "repop", "message" => $this->pop];
+		$msg = json_encode($jason);
+		$this->broadcast($msg);
+
+	}
+
 	public function play(){
 		/*!
 		Starts the game about fish.
@@ -378,9 +417,10 @@ class Server implements MessageComponentInterface {
 		$jason = ["type" => "system", "message" => "Starting game", "name" => "System", "color" => "999999"];
 		$msg = json_encode($jason);
 		$this->broadcast($msg);
-		$this->maxpop = MAXPOP;
+		$this->round = 1;
+		$this->pop = MAXPOP;
 
-		$jason = ["type" => "start", "message" => $this->maxpop];
+		$jason = ["type" => "start", "message" => $this->pop];
 		$msg = json_encode($jason);
 		$this->broadcast($msg);
 
