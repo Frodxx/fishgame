@@ -1,7 +1,7 @@
 //jquery
 
 $(document).ready(function(){
-			var IP = 'ws://192.168.1.71:8080';
+			var IP = 'ws://10.12.129.75:8080';
 			var conn = new WebSocket(IP);
 
 			scrollAnimation = function(){
@@ -128,6 +128,38 @@ $(document).ready(function(){
 					case 'repop':
 						window.pop = rcvdmessage;
 						buildPlayground();
+						break;
+
+					case 'over':
+						window.playing = false;
+						var catches = msg.catches;
+						var names = msg.names;
+						var colors = msg.colors;
+						var players = colors.length;
+
+						buildLobby();
+						$('#chatbox').append('<div id="placeholder" style="width:700px;height:350px;"></div>');
+
+						$.getScript("jquery.flot.js", function(){
+							var options = {
+								series: {
+									lines: {show: true},
+									points: {show: true}
+								}
+							};
+
+							var catchy = []; //aux
+							var new_catches = [];
+
+							for (var i = 0; i <= catches.length; i++) {
+								for (var j = 0; j <= catches[i].length; i++) {
+									catchy.push(i+1, catches[i][j]);
+								};
+								new_catches.push(catchy);
+							};
+
+						  $.plot($('#placeholder'), [new_catches], options);
+							});
 						break;
 
 
@@ -404,8 +436,17 @@ $(document).ready(function(){
 			}
 
 			buildLobby = function(){
-				$('.container').html('<div class="page-header"><h1>The Fishgame <small>Room</small></h1></div><div id="chatContainer" class="well"><div id="chatbox">&iexcl;Bienvenido a la sala! Aqu&iacute; aparecer&aacute;n los mensajes.</div><div class="controls"><form><div class="form-group"><label class="sr-only" for="chatInput">Mensaje</label><input type="text" class="form-control" id="chatInput" placeholder="Mensaje" maxlength="100"></div><button id="sendButton" type="button" class="btn btn-default">Enviar</button><input id="readyCheck" type="checkbox" data-size="normal" data-on="¡Listo!" data-off="¿Listo?" data-onstyle="success" data-toggle="toggle"></form></div></div>');
+				$('.container').html("");
+				$('.container').html('<div class="page-header"><h1>The Fishgame <small>Room</small></h1></div><div id="chatContainer" class="well"><div id="chatbox">&iexcl;Bienvenido a la sala! Aqu&iacute; aparecer&aacute;n los mensajes.</div><div class="controls"><form><div class="form-group"><label class="sr-only" for="chatInput">Mensaje</label><input type="text" class="form-control" id="chatInput" placeholder="Mensaje" maxlength="100"></div><button id="sendButton" type="button" class="btn btn-default">Enviar</button></form></div></div>');
 				$('#chatbox').append('<div>Tu nombre es <span style="font-weight: bold;color:#' +mycolor+'">'+myuser + '</span>.<hr></div>');
+				$('#sendButton').click(sendMsg);
+				
+				$('#chatInput').keypress(function(e){
+					if (e.which == 13) {
+						sendMsg();
+						return false;
+					}
+				});
 			}
 
 			$('#readyCheck').bootstrapToggle("off");

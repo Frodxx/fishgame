@@ -32,7 +32,7 @@ define("MAXCLIENTS" , 2);
 Maximum fish population per game.
 */
 
-define("MAXPOP", 20);
+define("MAXPOP", 2);
 
 /*!
 Fish regeneration ratio.
@@ -180,19 +180,24 @@ class Server implements MessageComponentInterface {
 				$msg = json_encode($jason);
 				$this->broadcast($msg);
 
-				// usleep(1000000);
-				$roundy = array();
-
-				foreach ($this->clients as $client) {
-					$roundy[] = $client->my_moves;
+				if ($this->pop == 0) {
+					//end the game
+					$this->endGame();
 				}
+				else{
+					$roundy = array();
 
-				if (array_sum($roundy) % MAXCLIENTS == 0) {
-					//round is complete
-					$this->endRound();
+					foreach ($this->clients as $client) {
+						$roundy[] = $client->my_moves;
+					}
+
+					if (array_sum($roundy) % MAXCLIENTS == 0) {
+						//round is complete
+						$this->endRound();
+					}
+
+					$this->assignTurn();
 				}
-
-				$this->assignTurn();
 				break;
 
 		}
@@ -398,7 +403,7 @@ class Server implements MessageComponentInterface {
 		*/
 
 		$this->pop = floor($this->pop * (1 + REGEN));
-		echo $this->pop;
+		echo sprintf("Population so far: %d \n", $this->pop);
 
 		$jason = ["type" => "system", "message" => "A new round has begun!", "name" => "System", "color" => "999999"];
 		$msg = json_encode($jason);
@@ -407,6 +412,29 @@ class Server implements MessageComponentInterface {
 		$jason = ["type" => "repop", "message" => $this->pop];
 		$msg = json_encode($jason);
 		$this->broadcast($msg);
+
+	}
+
+	public function endGame(){
+		/*!
+		Ends the game.
+		Notify everyone the results.
+		*/
+		$catches = array();
+		$names = array();
+		foreach ($this->clients as $client) {
+			$catches[] = $client->my_catch;
+			$names[] = $client->uname;
+			$colors[] = $client->ucolor;
+		}
+
+		$jason = ["type" => "over", "catches" => $catches, "names" => $names, "colors" => $colors];
+		$msg = json_encode($jason);
+		$this->broadcast($msg);
+
+
+
+
 
 	}
 
