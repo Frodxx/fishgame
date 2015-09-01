@@ -1,0 +1,10 @@
+bin/jquery.flot.js
+docs/
+vendor/
+doxy
+logo.png
+logo128.png
+use\ case
+composer.json
+composer.lock
+flot/
