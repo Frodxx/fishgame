@@ -354,6 +354,7 @@ $(document).ready(function(){
 						"width" : "1024px",
 						"min-height" : "768px",
 						"background-size" : "1024px 768px"
+
 					});
 				}
 				else{
@@ -369,14 +370,27 @@ $(document).ready(function(){
 				}
 
 				$('.container').append('<div id="buttonBar"></div>')
-
 				$('#buttonBar').append('<p id="notify" class="bg-warning"></p>');
 
-				$('#buttonBar').css({
-					'position' : 'absolute',
-					'min-width' : '995px',
-					'margin-top' : '720px'
-				});
+				if (window.matchMedia("(min-width: 1025px)").matches){
+					//1025 or more
+
+					$('#buttonBar').css({
+						'position' : 'absolute',
+						'min-width' : '995px',
+						'margin-top' : '720px'
+					});
+				}
+
+				else{
+					//1024 or less
+					$('#buttonBar').css({
+						'position' : 'absolute',
+						'min-width' : '995px',
+						'margin-top' : '660px'
+					});
+				}
+
 
 				$('#notify').css({
 					'border-radius' : '0.3em',
@@ -477,6 +491,9 @@ $(document).ready(function(){
 
 			buildLobby = function(){
 				$('.container').html("");
+				$('.container').css({
+					'background-image' : 'none'
+				});
 				$('.container').html('<div class="page-header"><h1>The Fishgame <small>Room</small></h1></div><div id="chatContainer" class="well"><div id="chatbox">&iexcl;Bienvenido a la sala! Aqu&iacute; aparecer&aacute;n los mensajes.</div><div class="controls"><form><div class="form-group"><label class="sr-only" for="chatInput">Mensaje</label><input type="text" class="form-control" id="chatInput" placeholder="Mensaje" maxlength="100"></div><button id="sendButton" type="button" class="btn btn-default">Enviar</button></form></div></div>');
 				$('#chatbox').append('<div>Tu nombre es <span style="font-weight: bold;color:#' +mycolor+'">'+myuser + '</span>.<hr></div>');
 				$('#sendButton').click(sendMsg);

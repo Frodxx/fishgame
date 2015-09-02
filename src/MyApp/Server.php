@@ -26,13 +26,19 @@ use Ratchet\ConnectionInterface;
 Maximum number of connections per room/application.
 */
 
-define("MAXCLIENTS" , 2);
+define("MAXCLIENTS" , 7);
 
 /*!
 Maximum fish population per game.
 */
 
-define("MAXPOP", 10);
+define("MAXPOP", 20);
+
+/*!
+Maximum rounds per game.
+*/
+
+define("MAXROUNDS", 5);
 
 /*!
 Fish regeneration ratio.
@@ -46,8 +52,12 @@ class Server implements MessageComponentInterface {
 	protected $clients;/*!<	A SplObjectStorage that holds connection objects (sockets). */
 	protected $listeners; /*!< Helper variable to storage number of listening clients when the game is running */
 	protected $pop;
-	protected $maxrounds = 0;
-	protected $round = 0;
+	protected $max_rounds = 0;
+	protected $current_round = 0;
+	protected $survival = false;
+	protected $names = ["Dasyatis", "Pterois", "Xiphias", "Carassius", "Betta", "Poecilia", "Makaira", "Thunnus", "Carcharodon", "Octopus", "Arothron", "Pygoplites", "Ictalurus", "Callinectes", "Panulirus", "Palaemon", "Pleioptygma", "Crassostrea", "Loligo", "Melanocetus", "Sepiella", "Nautilus", "Chrysaora", "Squilla"];
+	protected $colors = ['007AFF','FF7000','15E25F','CFC700','CF1100','CF00BE','F00'];
+	protected $used_colors = [];
 
 	public function __construct() {
 		$this->clients = new \SplObjectStorage;
@@ -195,8 +205,9 @@ class Server implements MessageComponentInterface {
 						//round is complete
 						$this->endRound();
 					}
-
-					$this->assignTurn();
+					else{
+						$this->assignTurn();
+					}
 				}
 				break;
 
@@ -219,6 +230,9 @@ class Server implements MessageComponentInterface {
 				$this->listeners = $this->listeners - 1;
 			}
 		}
+		if (isset($conn->ucolor)) {
+			$this->colors[] = $conn->ucolor;
+		}
 		$conn->close();
 
 		$this->clients->detach($conn);
@@ -234,11 +248,13 @@ class Server implements MessageComponentInterface {
 		@param ConnectionInterface $conn
 		This is the socket (client) being named and colored.
 		*/
-		$names = ["Dasyatis", "Pterois", "Xiphias", "Carassius", "Betta", "Poecilia", "Makaira", "Thunnus", "Carcharodon", "Octopus", "Arothron", "Pygoplites", "Ictalurus", "Callinectes", "Panulirus", "Palaemon", "Pleioptygma", "Crassostrea", "Loligo", "Melanocetus", "Sepiella", "Nautilus", "Chrysaora", "Squilla"];
-		$colors = ['007AFF','FF7000','FF7000','15E25F','CFC700','CFC700','CF1100','CF00BE','F00'];
 		
-		$conn->uname = $names[mt_rand(0, count($names)-1)]; // Random name of the player.
-		$conn->ucolor = $colors[mt_rand(0, count($colors)-1)]; // Random color of the player.
+		$conn->uname = $this->names[mt_rand(0, count($this->names)-1)]; // Random name of the player.
+		$colored = $this->colors[mt_rand(0, count($this->colors)-1)]; // Random color of the player.
+		unset($this->colors[array_search($colored, $this->colors)]);
+		$this->colors = array_values($this->colors);
+		$conn->ucolor = $colored;
+		$this->used_colors[] = $colored;
 
 		$jason = ["type" => "handshake","name" => $conn->uname, "color" => $conn->ucolor, "message" => $conn->resourceId];
 
@@ -399,11 +415,21 @@ class Server implements MessageComponentInterface {
 	public function endRound(){
 		/*!
 		Ends the round.
-		Adds regeneration and notify everybody
+		Adds regeneration and notify everybody.
+		It also assigns new turn if necessary.
 		*/
+		$this->current_round += 1;
+
+		if (!$this->survival) {
+			//check rounds
+			if ($this->current_round > MAXROUNDS) {
+				$this->endGame();
+				return;
+			}
+		}
 
 		$this->pop = floor($this->pop * (1 + REGEN));
-		echo sprintf("Population so far: %d \n", $this->pop);
+		echo sprintf("Round %d has begun.\nPopulation so far: %d \n", $this->current_round, $this->pop);
 
 		$jason = ["type" => "system", "message" => "A new round has begun!", "name" => "System", "color" => "999999"];
 		$msg = json_encode($jason);
@@ -412,6 +438,7 @@ class Server implements MessageComponentInterface {
 		$jason = ["type" => "repop", "message" => $this->pop];
 		$msg = json_encode($jason);
 		$this->broadcast($msg);
+		$this->assignTurn();
 
 	}
 
@@ -432,20 +459,18 @@ class Server implements MessageComponentInterface {
 		$msg = json_encode($jason);
 		$this->broadcast($msg);
 
-
-
-
-
+		echo "The game has finished.\n";
 	}
 
 	public function play(){
 		/*!
 		Starts the game about fish.
 		*/
+		echo "The game has started.\n";
 		$jason = ["type" => "system", "message" => "Starting game", "name" => "System", "color" => "999999"];
 		$msg = json_encode($jason);
 		$this->broadcast($msg);
-		$this->round = 1;
+		$this->current_round = 1;
 		$this->pop = MAXPOP;
 
 		$jason = ["type" => "start", "message" => $this->pop];
