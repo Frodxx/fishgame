@@ -26,19 +26,19 @@ use Ratchet\ConnectionInterface;
 Maximum number of connections per room/application.
 */
 
-define("MAXCLIENTS" , 7);
+define("MAXCLIENTS" , 2);
 
 /*!
 Maximum fish population per game.
 */
 
-define("MAXPOP", 20);
+define("MAXPOP", 5);
 
 /*!
 Maximum rounds per game.
 */
 
-define("MAXROUNDS", 5);
+define("MAXROUNDS", 10);
 
 /*!
 Fish regeneration ratio.
@@ -47,7 +47,6 @@ Fish regeneration ratio.
 define("REGEN", 0.25);
 
 class Server implements MessageComponentInterface {
-
 	
 	protected $clients;/*!<	A SplObjectStorage that holds connection objects (sockets). */
 	protected $listeners; /*!< Helper variable to storage number of listening clients when the game is running */
@@ -454,6 +453,8 @@ class Server implements MessageComponentInterface {
 			$names[] = $client->uname;
 			$colors[] = $client->ucolor;
 		}
+
+		$this->resetValues();
 
 		$jason = ["type" => "over", "catches" => $catches, "names" => $names, "colors" => $colors];
 		$msg = json_encode($jason);

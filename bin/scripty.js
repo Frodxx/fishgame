@@ -19,7 +19,7 @@ $(document).ready(function(){
 
 
 			conn.onopen = function(e){
-				$('#chatbox').append('<div class="bg-info">' + timestamp() + 'Conectado.</div>');
+				$('#chatbox').append('<div class="bg-info">' + timestamp() + 'Connected.</div>');
 				window.playing = false;
 			}
 
@@ -53,7 +53,7 @@ $(document).ready(function(){
 						window.myaccum = 0;
 						window.myturn = false;
 
-						$('#chatbox').append('<div>Tu nombre es <span style="font-weight: bold;color:#' +mycolor+'">'+myuser + '</span>.<hr></div>');
+						$('#chatbox').append('<div>You are <span style="font-weight: bold;color:#' +mycolor+'">'+myuser + '</span>.<hr></div>');
 						break;
 
 					case 'text':
@@ -65,21 +65,21 @@ $(document).ready(function(){
 
 					case 'join':
 						if (window.playing == false){
-							$('#chatbox').append('<div class="bg-success">'+timestamp()+'<span style="font-weight: bold;color:#' +ucolor+'">'+uname + "</span> se ha unido a la sala.</div>");
+							$('#chatbox').append('<div class="bg-success">'+timestamp()+'<span style="font-weight: bold;color:#' +ucolor+'">'+uname + "</span> has joined the room.</div>");
 							scrollAnimation();
 						}
 						break;
 
 					case 'part':
 						if (window.playing == false){
-							$('#chatbox').append('<div class="bg-warning">'+timestamp()+'<span style="font-weight: bold;color:#' +ucolor+'">'+uname + "</span> ha salido de la sala.</div>");
+							$('#chatbox').append('<div class="bg-warning">'+timestamp()+'<span style="font-weight: bold;color:#' +ucolor+'">'+uname + "</span> has left the room.</div>");
 							scrollAnimation();	
 						}
 						else{
-							$('#notify').html('<div class="bg-warning">'+timestamp()+'<span style="font-weight: bold;color:#' +ucolor+'">'+uname + "</span> ha salido de la sala y el juego tuvo que cancelarse.</div>");
+							$('#notify').html('<div class="bg-warning">'+timestamp()+'<span style="font-weight: bold;color:#' +ucolor+'">'+uname + "</span> has left the room and the game had to be interrupted.</div>");
 							setTimeout(function(){
-								$('#notify').html('Reiniciando el juego...')},2500);
-							setTimeout(function(){location.reload(true)}, 4500);
+								$('#notify').html('Restarting...')},2000);
+							setTimeout(function(){location.reload(true)}, 3500);
 						}
 						break;
 
@@ -92,14 +92,14 @@ $(document).ready(function(){
 
 					case 'ready':
 						if (window.playing==false){
-							$('#chatbox').append("<div>"+timestamp()+'<span style="font-style:italic"><span style="font-weight: bold;color:#' +ucolor+'">'+uname + '</span> <span style="font-style:italic;"></span>est&aacute; listo</div></span>');
+							$('#chatbox').append("<div>"+timestamp()+'<span style="font-style:italic"><span style="font-weight: bold;color:#' +ucolor+'">'+uname + '</span> <span style="font-style:italic;"></span>is ready</div></span>');
 							scrollAnimation();
 						}
 						break;
 
 					case 'unready':
 						if (window.playing == false){
-							$('#chatbox').append("<div>"+timestamp()+'<span style="font-style:italic"><span style="font-weight: bold;color:#' +ucolor+'">'+uname + '</span> <span style="font-style:italic;"></span>dejó de estar listo</div></span>');
+							$('#chatbox').append("<div>"+timestamp()+'<span style="font-style:italic"><span style="font-weight: bold;color:#' +ucolor+'">'+uname + '</span> <span style="font-style:italic;"></span>is no longer ready</div></span>');
 							scrollAnimation();
 						}
 						break;
@@ -141,16 +141,16 @@ $(document).ready(function(){
 						var mypos = names.indexOf(window.myuser);
 
 						buildLobby();
-						$('#chatbox').append('<h3>¡Fin del juego!</h3>');
-						$('#chatbox').append('<div>Pescaste <strong>' + catches[mypos].length + '</strong> veces, un total de '+ window.myaccum +' peces.</div>');
-						$('#chatbox').append('<div>La puntuación de los demás quedó así:</div><br>');
+						$('#chatbox').append('<h3>Game over!</h3>');
+						$('#chatbox').append('<div>You fished <strong>' + catches[mypos].length + '</strong> times, and caught '+ window.myaccum +' units overall.</div>');
+						$('#chatbox').append('<div>The score for all players is as follows:</div><br>');
 						for (var i = 0; i < catches.length; i++) {
 							if (catches[i] == mypos){
 								//print in bold
-								$('#chatbox').append('<div style:"font-weight:bold;"><span style="color:#'+mycolor+'">'+names[mypos]+'</span>: '+ window.myaccum +' peces – ' + catches[i] +'</div>');
+								$('#chatbox').append('<div style:"font-weight:bold;"><span style="color:#'+mycolor+'">'+names[mypos]+'</span>: '+ window.myaccum +' units – ' + catches[i] +'</div>');
 							}
 							else{
-								$('#chatbox').append('<div><span style="font-weight:bold;color:#'+colors[i]+'">'+names[i]+'</span>: '+ catches[i].reduce(function(a,b){return parseInt(a) + parseInt(b)}) +' peces – ' + catches[i] +'</div>');
+								$('#chatbox').append('<div><span style="font-weight:bold;color:#'+colors[i]+'">'+names[i]+'</span>: '+ catches[i].reduce(function(a,b){return parseInt(a) + parseInt(b)}) +' units – ' + catches[i] +'</div>');
 							}
 						};
 						
@@ -166,12 +166,14 @@ $(document).ready(function(){
 								xaxis: {
 									ticks: 10,
 									min: 1,
-									max: 10
+									max: 10,
+									tickDecimals: 0
 								},
 								yaxis: {
 									ticks: 4,
 									min: 0,
-									max: 3
+									max: 3,
+									tickDecimals: 0
 								}
 							};
 
@@ -202,6 +204,7 @@ $(document).ready(function(){
 							});
 
 						$('#chatbox').append('<hr>');
+						resetValues();
 						break;
 
 
@@ -235,12 +238,12 @@ $(document).ready(function(){
 			conn.onclose = function(e){
 				console.log("Socket connection ended.");
 				if (window.playing == false) {
-					$('#chatbox').append('<div class="bg-danger">'+timestamp()+'Desconectado.</div>');
+					$('#chatbox').append('<div class="bg-danger">'+timestamp()+'Disconnected.</div>');
 					$('#chatInput').prop('disabled', true);
 				}
 				else{
 					blockUI();
-					$('#notify').html('<div class="bg-danger">'+timestamp()+'Desconectado.</div>');
+					$('#notify').html('<div class="bg-danger">'+timestamp()+'Disconnected.</div>');
 				}
 			}
 
@@ -338,12 +341,7 @@ $(document).ready(function(){
 
 			gameInit = function(){
 				window.playing = true;
-				buildPlayground(); //just for showing off purposes
-				blockUI();
-				setListening();
-			}
 
-			buildPlayground = function(){
 				$('.container').html("");
 
 				if (window.matchMedia("(min-width: 1025px)").matches){
@@ -368,6 +366,12 @@ $(document).ready(function(){
 						"min-height" : "705px"
 					});
 				}
+				buildPlayground();
+				setListening();
+			}
+
+			buildPlayground = function(){
+				$('.container').html("");
 
 				$('.container').append('<div id="buttonBar"></div>')
 				$('#buttonBar').append('<p id="notify" class="bg-warning"></p>');
@@ -409,6 +413,14 @@ $(document).ready(function(){
 				$('#resetBtn').css({
 					'min-width' : '100px',
 					'margin-right' : '15px'
+				});
+
+				$('#buttonBar').append('<p id="catchy" class="bg-success pull-right">Global catch <span class="badge">'+window.myaccum+'</span></p>');
+
+				$('#catchy').css({
+					'border-radius' : '0.3em',
+					'padding': '7px',
+					'margin-right': '15px'
 				});
 				
 				for (var i = 0; i < window.pop; i++) {
@@ -478,6 +490,10 @@ $(document).ready(function(){
 			}
 
 			imDone = function(){
+				window.myturn = false;
+				window.pop -= window.mycatch;
+				console.log(window.pop);
+				blockUI();
 				 msg = {
 				 		type: 'end',
 				 		name: window.myuser,
@@ -485,18 +501,41 @@ $(document).ready(function(){
 				 		message: window.mycatch
 				 	};
 				conn.send(JSON.stringify(msg));
-				blockUI();
 				window.myaccum += window.mycatch;
+				resetUI();
+			}
+
+			resetValues = function(){
+				window.mycatch = 0;
+				window.myaccum = 0;
+				window.myturn = false;
 			}
 
 			buildLobby = function(){
-				$('.container').html("");
+				$('body').html("");
+
 				$('.container').css({
-					'background-image' : 'none'
+					'background-image' : 'none',
+					'background-size' : 'auto'
 				});
-				$('.container').html('<div class="page-header"><h1>The Fishgame <small>Room</small></h1></div><div id="chatContainer" class="well"><div id="chatbox">&iexcl;Bienvenido a la sala! Aqu&iacute; aparecer&aacute;n los mensajes.</div><div class="controls"><form><div class="form-group"><label class="sr-only" for="chatInput">Mensaje</label><input type="text" class="form-control" id="chatInput" placeholder="Mensaje" maxlength="100"></div><button id="sendButton" type="button" class="btn btn-default">Enviar</button></form></div></div>');
-				$('#chatbox').append('<div>Tu nombre es <span style="font-weight: bold;color:#' +mycolor+'">'+myuser + '</span>.<hr></div>');
+
+				$('body').html('<div class="container"><div class="page-header"><h1>The Fishgame <small>Room</small></h1></div><div id="chatContainer" class="well"><div id="chatbox">Welcome to the room! All messages will appear here.</div><div class="controls"><form><div class="form-group">	<label class="sr-only" for="chatInput">Message</label><input type="text" class="form-control" id="chatInput" placeholder="Message" maxlength="100">	</div><button id="sendButton" type="button" class="btn btn-default">Send</button><input id="readyCheck" class="pull-right" type="checkbox" data-size="normal" data-on="Ready!" data-off="Ready?" data-onstyle="success" data-toggle="toggle"></form></div></div></div>');
+				
+				var stylesheets = $('link[href="sitewide.css"]');
+				var reloadQueryString = '?reload=' + new Date().getTime();
+				stylesheets.each(function () {
+					this.href = this.href.replace(/\?.*|$/, reloadQueryString);
+				  });
+
+				$('#sendButton').css({
+					'margin-left': '5px',
+					'margin-right' : '5px'
+				});
+
+				$('#chatbox').append('<div>You are <span style="font-weight: bold;color:#' +mycolor+'">'+myuser + '</span>.<hr></div>');
+				$('#readyCheck').bootstrapToggle("off");
 				$('#sendButton').click(sendMsg);
+				$('#readyCheck').change(setReady);
 				
 				$('#chatInput').keypress(function(e){
 					if (e.which == 13) {

@@ -3,11 +3,6 @@ h1 a, h1 a:hover, h1 a:link, h1 a:visited{
 			text-decoration: none;
 		}
 
-#info{
-			padding:10px;
-			margin-bottom: 20px;
-		}
-
 		@media screen and (max-width: 768px) {
 			.form-group {
 				width: 40%;
