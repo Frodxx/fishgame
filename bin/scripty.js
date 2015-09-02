@@ -113,6 +113,7 @@ $(document).ready(function(){
 						}
 						else{
 							$('#notify').html('It is <span style="font-weight:bold;color:#' + ucolor + '">' + uname + "</span>'s turn!");
+							blockUI();
 						}
 						break;
 
@@ -137,29 +138,70 @@ $(document).ready(function(){
 						var colors = msg.colors;
 						var players = colors.length;
 
+						var mypos = names.indexOf(window.myuser);
+
 						buildLobby();
+						$('#chatbox').append('<h3>¡Fin del juego!</h3>');
+						$('#chatbox').append('<div>Pescaste <strong>' + catches[mypos].length + '</strong> veces, un total de '+ window.myaccum +' peces.</div>');
+						$('#chatbox').append('<div>La puntuación de los demás quedó así:</div><br>');
+						for (var i = 0; i < catches.length; i++) {
+							if (catches[i] == mypos){
+								//print in bold
+								$('#chatbox').append('<div style:"font-weight:bold;"><span style="color:#'+mycolor+'">'+names[mypos]+'</span>: '+ window.myaccum +' peces – ' + catches[i] +'</div>');
+							}
+							else{
+								$('#chatbox').append('<div><span style="font-weight:bold;color:#'+colors[i]+'">'+names[i]+'</span>: '+ catches[i].reduce(function(a,b){return parseInt(a) + parseInt(b)}) +' peces – ' + catches[i] +'</div>');
+							}
+						};
+						
+
 						$('#chatbox').append('<div id="placeholder" style="width:700px;height:350px;"></div>');
 
-						// $.getScript("jquery.flot.js", function(){
-						// 	var options = {
-						// 		series: {
-						// 			lines: {show: true},
-						// 			points: {show: true}
-						// 		}
-						// 	};
+						$.getScript("jquery.flot.js", function(){
+							var options = {
+								series: {
+									lines: {show: true},
+									points: {show: true}
+								},
+								xaxis: {
+									ticks: 10,
+									min: 1,
+									max: 10
+								},
+								yaxis: {
+									ticks: 4,
+									min: 0,
+									max: 3
+								}
+							};
 
-						// 	var catchy = []; //aux
-						// 	var new_catches = [];
+							var catchy = []; //aux
+							window.new_catches = new Array();
 
-						// 	for (var i = 0; i <= catches.length; i++) {
-						// 		for (var j = 0; j <= catches[i].length; i++) {
-						// 			catchy.push(i+1, catches[i][j]);
-						// 		};
-						// 		new_catches.push(catchy);
-						// 	};
+							for (var i = 0; i < catches.length; i++) {
+								console.log(catches[i]);
+								for (var j = 0; j < catches[i].length; j++) {
+									console.log(catches[i][j]);
+									catchy.push([j+1, parseInt(catches[i][j])]);
+								}
 
-						//   $.plot($('#placeholder'), [new_catches], options);
-						// 	});
+								var myobject = {
+									label: names[i],
+									color: "#" + colors[i],
+									data: catchy
+								};
+
+								window.new_catches.push(myobject);
+								catchy = [];
+							}
+							// all_new_array = [];
+							// for (var i = 0; i < window.new_catches.length; i++) {
+							// 	all_new_array.push(window.new_catches[i]);
+							// }
+						  $.plot($('#placeholder'), window.new_catches, options);
+							});
+
+						$('#chatbox').append('<hr>');
 						break;
 
 
@@ -359,15 +401,13 @@ $(document).ready(function(){
 					$('.container').append('<img class="fishy" src="img/fish.png">');
 				}
 
-				$
-
 				$('#amigo').css({
 					'-moz-transform': 'scaleX(-1)',
         		'-o-transform': 'scaleX(-1)',
         		'-webkit-transform' : 'scaleX(-1)',
         		'transform': 'scaleX(-1)',
         		'filter' : 'FlipH',
-        		'-ms-filter' : 'FlipH'});			
+        		'-ms-filter' : 'FlipH'});		
 				$('.fishy').draggable();				
 				$('#endBtn').click(imDone);
 				$('#resetBtn').click(resetUI);

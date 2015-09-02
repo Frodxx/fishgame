@@ -32,7 +32,7 @@ define("MAXCLIENTS" , 2);
 Maximum fish population per game.
 */
 
-define("MAXPOP", 20);
+define("MAXPOP", 10);
 
 /*!
 Fish regeneration ratio.
