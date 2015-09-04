@@ -26,7 +26,7 @@ use Ratchet\ConnectionInterface;
 Maximum number of connections per room/application.
 */
 
-define("MAXCLIENTS" , 2);
+define("MAXCLIENTS" , 3);
 
 /*!
 Maximum fish population per game.
@@ -38,7 +38,7 @@ define("MAXPOP", 5);
 Maximum rounds per game.
 */
 
-define("MAXROUNDS", 10);
+define("MAXROUNDS", 2);
 
 /*!
 Fish regeneration ratio.
@@ -449,7 +449,12 @@ class Server implements MessageComponentInterface {
 		$catches = array();
 		$names = array();
 		foreach ($this->clients as $client) {
-			$catches[] = $client->my_catch;
+			if (isset($client->my_catch)) {
+				$catches[] = $client->my_catch;	
+			}
+			else{
+				$catches[] = 0;
+			}
 			$names[] = $client->uname;
 			$colors[] = $client->ucolor;
 		}
