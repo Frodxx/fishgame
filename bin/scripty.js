@@ -145,13 +145,13 @@ $(document).ready(function(){
 						$('#chatbox').append('<div>You fished <strong>' + catches[mypos].length + '</strong> times, and caught '+ window.myaccum +' units overall.</div>');
 						$('#chatbox').append('<div>The score for all players is as follows:</div><br>');
 						for (var i = 0; i < catches.length; i++) {
-							if (catches[i] == mypos){
-								//print in bold
-								$('#chatbox').append('<div style:"font-weight:bold;"><span style="color:#'+mycolor+'">'+names[mypos]+'</span>: '+ window.myaccum +' units – ' + catches[i] +'</div>');
-							}
-							else{
+							// if (catches[i] == mypos){
+							// 	//print in bold
+							// 	$('#chatbox').append('<div style:"font-weight:bold"><span style="color:#'+mycolor+'">'+names[mypos]+'</span>: '+ window.myaccum +' units – ' + catches[i] +'</div>');
+							// }
+							//else{
 								$('#chatbox').append('<div><span style="font-weight:bold;color:#'+colors[i]+'">'+names[i]+'</span>: '+ catches[i].reduce(function(a,b){return parseInt(a) + parseInt(b)}) +' units – ' + catches[i] +'</div>');
-							}
+							//}
 						};
 						
 

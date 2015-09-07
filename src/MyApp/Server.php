@@ -32,13 +32,13 @@ define("MAXCLIENTS" , 3);
 Maximum fish population per game.
 */
 
-define("MAXPOP", 5);
+define("MAXPOP", 15);
 
 /*!
 Maximum rounds per game.
 */
 
-define("MAXROUNDS", 2);
+define("MAXROUNDS", 10);
 
 /*!
 Fish regeneration ratio.
@@ -53,7 +53,7 @@ class Server implements MessageComponentInterface {
 	protected $pop;
 	protected $max_rounds = 0;
 	protected $current_round = 0;
-	protected $survival = false;
+	protected $survival = true;
 	protected $names = ["Dasyatis", "Pterois", "Xiphias", "Carassius", "Betta", "Poecilia", "Makaira", "Thunnus", "Carcharodon", "Octopus", "Arothron", "Pygoplites", "Ictalurus", "Callinectes", "Panulirus", "Palaemon", "Pleioptygma", "Crassostrea", "Loligo", "Melanocetus", "Sepiella", "Nautilus", "Chrysaora", "Squilla"];
 	protected $colors = ['007AFF','FF7000','15E25F','CFC700','CF1100','CF00BE','F00'];
 	protected $used_colors = [];
@@ -449,11 +449,16 @@ class Server implements MessageComponentInterface {
 		$catches = array();
 		$names = array();
 		foreach ($this->clients as $client) {
-			if (isset($client->my_catch)) {
+			// if(isset($client->my_catch)){
+			// 	var_dump($client->my_catch);
+			// }
+
+			if (sizeof($client->my_catch) != 0) {
 				$catches[] = $client->my_catch;	
 			}
 			else{
-				$catches[] = 0;
+				$client->my_catch = array_merge($client->my_catch, array("0"));
+				$catches[] = $client->my_catch;	
 			}
 			$names[] = $client->uname;
 			$colors[] = $client->ucolor;
