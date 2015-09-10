@@ -174,6 +174,10 @@ class Server implements MessageComponentInterface {
 					}
 				}
 
+			case "users":
+				$this->whoIsOnline($from);
+				break;
+
 				echo sprintf("Connection %d is now listening\n", $from->resourceId);
 				echo sprintf("%d listeners so far\n", $this->listeners);
 				$this->assignTurn();
@@ -264,6 +268,7 @@ class Server implements MessageComponentInterface {
 
 		$usermsg = json_encode($jason);
 		$conn->send($usermsg);
+		$this->whoIsOnline($conn);
 	}
 
 	public function assignTurn(){
@@ -312,6 +317,28 @@ class Server implements MessageComponentInterface {
 
 		return $whos_next;
 
+	}
+
+	public function whoIsOnline(ConnectionInterface $conn){
+		/*!
+		Check which users are online and send it to @p $conn.
+
+		@param ConnectionInterface $conn
+		This is the socket (client) requesting the user list.
+		*/
+
+		$names = [];
+		$colors = [];
+
+		foreach ($this->clients as $client) {
+			$names[] = $client->uname;
+			$colors[] = $client->ucolor;
+		}
+
+		$jason = ["type" => "users", "names" => $names, "colors" => $colors];
+		$msg = json_encode($jason);
+
+		$conn->send($msg);
 	}
 
 	public function tellJoin(ConnectionInterface $conn){

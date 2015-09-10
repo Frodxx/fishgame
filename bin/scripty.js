@@ -104,6 +104,19 @@ $(document).ready(function(){
 						}
 						break;
 
+					case 'users':
+
+						if (window.playing == false) {
+							var names = msg.names;
+							var colors = msg.colors;
+							$('#chatbox').append('<hr>Connected users: ');
+							for (var i = 0; i < names.length; i++){
+								$('#chatbox').append('<span style="font-weight:bold;color:#'+colors[i]+'">'+names[i]+'</span> ');
+							}
+							$('#chatbox').append('<hr>');
+							scrollAnimation();	
+						}
+
 					case 'turn':
 						if(rcvdmessage == window.myid){
 							//it is my turn
@@ -313,6 +326,14 @@ $(document).ready(function(){
 						else{
 							$('#readyCheck').bootstrapToggle('on');
 						}
+						$('#chatInput').val('');
+						break;
+
+					case "users":
+						msg = {
+							type: 'users'
+						};
+						conn.send(JSON.stringify(msg));
 						$('#chatInput').val('');
 						break;
 				}
