@@ -22,29 +22,34 @@ namespace MyApp;
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 
+$prefs = parse_ini_file("preferences.ini");
+
 /*!
 Maximum number of connections per room/application.
 */
 
-define("MAXCLIENTS" , 3);
+define("MAXCLIENTS" , intval($prefs['max_clients']));
 
 /*!
 Maximum fish population per game.
 */
 
-define("MAXPOP", 15);
+define("MAXPOP", intval($prefs['max_pop']));
 
 /*!
 Maximum rounds per game.
 */
 
-define("MAXROUNDS", 10);
+define("MAXROUNDS", intval($prefs['max_rounds']));
 
 /*!
 Fish regeneration ratio.
 */
 
-define("REGEN", 0.25);
+define("REGEN", floatval($prefs['regen']));
+
+echo "Server started. Preferences are as follows:\n";
+var_dump($prefs);
 
 class Server implements MessageComponentInterface {
 	
@@ -53,7 +58,7 @@ class Server implements MessageComponentInterface {
 	protected $pop;
 	protected $max_rounds = 0;
 	protected $current_round = 0;
-	protected $survival = true;
+	// protected $survival = $prefs['survival'];
 	protected $names = ["Dasyatis", "Pterois", "Xiphias", "Carassius", "Betta", "Poecilia", "Makaira", "Thunnus", "Carcharodon", "Octopus", "Arothron", "Pygoplites", "Ictalurus", "Callinectes", "Panulirus", "Palaemon", "Pleioptygma", "Crassostrea", "Loligo", "Melanocetus", "Sepiella", "Nautilus", "Chrysaora", "Squilla"];
 	protected $colors = ['007AFF','FF7000','15E25F','CFC700','CF1100','CF00BE','F00'];
 	protected $used_colors = [];
@@ -419,7 +424,7 @@ class Server implements MessageComponentInterface {
 		*/
 		$this->current_round += 1;
 
-		if (!$this->survival) {
+		if (intval($prefs['survival']) == 1) {//!$this->survival
 			//check rounds
 			if ($this->current_round > MAXROUNDS) {
 				$this->endGame();

@@ -1,7 +1,7 @@
 //jquery
 
 $(document).ready(function(){
-			var IP = 'ws://10.12.129.75:8080';
+			var IP = 'ws://192.168.1.71:8080' //TEC -> 'ws://10.12.129.75:8080'
 			var conn = new WebSocket(IP);
 
 			scrollAnimation = function(){
