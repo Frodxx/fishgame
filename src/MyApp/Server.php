@@ -83,6 +83,7 @@ class Server implements MessageComponentInterface {
 			echo "Connection successfully established. Resource ID: ({$conn->resourceId})\n";
 			$this->assignName($conn);
 			$this->tellJoin($conn);
+			$this->whoIsOnline($conn);
 
 			$conn->is_ready = false; // Is the client ready to play?
 			$conn->is_listening = false; //Is the client playing?
@@ -162,6 +163,10 @@ class Server implements MessageComponentInterface {
 				$this->broadcast($msg);
 				break;
 
+			case "users":
+				$this->whoIsOnline($from);
+				break;
+
 			case "listen":
 				$this->listeners = 0;
 				if ($from->is_listening == false) {
@@ -173,10 +178,6 @@ class Server implements MessageComponentInterface {
 						$this->listeners += 1;
 					}
 				}
-
-			case "users":
-				$this->whoIsOnline($from);
-				break;
 
 				echo sprintf("Connection %d is now listening\n", $from->resourceId);
 				echo sprintf("%d listeners so far\n", $this->listeners);
@@ -268,7 +269,6 @@ class Server implements MessageComponentInterface {
 
 		$usermsg = json_encode($jason);
 		$conn->send($usermsg);
-		$this->whoIsOnline($conn);
 	}
 
 	public function assignTurn(){

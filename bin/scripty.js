@@ -1,7 +1,7 @@
 //jquery
 
 $(document).ready(function(){
-			var IP = 'ws://192.168.1.71:8080' //TEC -> 'ws://10.12.129.75:8080'
+			var IP = 'ws://10.12.129.75:8080' //TEC -> 'ws://10.12.129.75:8080'
 			var conn = new WebSocket(IP);
 
 			scrollAnimation = function(){
@@ -91,31 +91,30 @@ $(document).ready(function(){
 						break;
 
 					case 'ready':
-						if (window.playing==false){
-							$('#chatbox').append("<div>"+timestamp()+'<span style="font-style:italic"><span style="font-weight: bold;color:#' +ucolor+'">'+uname + '</span> <span style="font-style:italic;"></span>is ready</div></span>');
+						if (window.playing == false){
+							$('#chatbox').append("<div>"+timestamp()+'<span style="font-style:italic"><span style="font-weight: bold;color:#' +ucolor+'">'+uname + '</span> is ready</span></div>');
 							scrollAnimation();
 						}
 						break;
 
 					case 'unready':
 						if (window.playing == false){
-							$('#chatbox').append("<div>"+timestamp()+'<span style="font-style:italic"><span style="font-weight: bold;color:#' +ucolor+'">'+uname + '</span> <span style="font-style:italic;"></span>is no longer ready</div></span>');
+							$('#chatbox').append("<div>"+timestamp()+'<span style="font-style:italic"><span style="font-weight: bold;color:#' +ucolor+'">'+uname + '</span> is no longer ready</span></div>');
 							scrollAnimation();
 						}
 						break;
 
 					case 'users':
-
 						if (window.playing == false) {
 							var names = msg.names;
 							var colors = msg.colors;
-							$('#chatbox').append('<hr>Connected users: ');
+							$('#chatbox').append('<div class="bg-info" id="users">' + timestamp() + 'Connected users: </div>');
 							for (var i = 0; i < names.length; i++){
-								$('#chatbox').append('<span style="font-weight:bold;color:#'+colors[i]+'">'+names[i]+'</span> ');
+								$('#users').append('<span style="font-weight:bold;color:#'+colors[i]+'">'+names[i]+'</span> ');
 							}
-							$('#chatbox').append('<hr>');
 							scrollAnimation();	
 						}
+						break;
 
 					case 'turn':
 						if(rcvdmessage == window.myid){
@@ -318,6 +317,15 @@ $(document).ready(function(){
 						$('#chatInput').val('');
 						break;
 
+					case "users":
+						msg = {
+							type: 'users'
+						};
+						
+						conn.send(JSON.stringify(msg));
+						$('#chatInput').val('');
+						break;
+
 					case "ready":
 					case "rdy":
 						if ($('#readyCheck').prop("checked")){
@@ -326,14 +334,6 @@ $(document).ready(function(){
 						else{
 							$('#readyCheck').bootstrapToggle('on');
 						}
-						$('#chatInput').val('');
-						break;
-
-					case "users":
-						msg = {
-							type: 'users'
-						};
-						conn.send(JSON.stringify(msg));
 						$('#chatInput').val('');
 						break;
 				}
