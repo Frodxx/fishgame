@@ -5,11 +5,13 @@ use Ratchet\WebSocket\WsServer;
 use Ratchet\Http\OriginCheck;
 use MyApp\Server;
 
-    require dirname(__DIR__) . '/vendor/autoload.php';
+$myIP = '10.12.129.75'; //Change to match your server IP address
 
-    $checkedApp = new OriginCheck(new WsServer(new Server()), array('10.12.129.75')); //tec 10.12.129.75
-    $checkedApp->allowedOrigins[] = 'localhost';
+require dirname(__DIR__) . '/vendor/autoload.php';
 
-    $server = IoServer::factory(new HttpServer($checkedApp), 8080);
-    $server->run();
+$checkedApp = new OriginCheck(new WsServer(new Server()), array($myIP));
+$checkedApp->allowedOrigins[] = 'localhost';
+
+$server = IoServer::factory(new HttpServer($checkedApp), 8080);
+$server->run();
 ?>

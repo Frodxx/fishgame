@@ -1,8 +1,11 @@
 //jquery
 
 $(document).ready(function(){
-			var IP = 'ws://10.12.129.75:8080' //TEC -> 'ws://10.12.129.75:8080'
-			var conn = new WebSocket(IP);
+			var IP = '10.12.129.75';
+			var port = '8080';
+			var ws = 'ws://' + IP + ':' + port
+			console.log(ws);
+			var conn = new WebSocket(ws);
 
 			scrollAnimation = function(){
 				$('#chatbox').stop().animate({
