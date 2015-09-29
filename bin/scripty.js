@@ -54,6 +54,7 @@ $(document).ready(function(){
 						window.mycolor = ucolor;
 						window.mycatch = 0;
 						window.myaccum = 0;
+						window.mydetaccum = [0];
 						window.myturn = false;
 
 						$('#chatbox').append('<div>You are <span style="font-weight: bold;color:#' +mycolor+'">'+myuser + '</span>.<hr></div>');
@@ -134,6 +135,7 @@ $(document).ready(function(){
 
 					case 'catch':
 						window.pop -= rcvdmessage;
+						//window.detpop.push(window.pop);
 
 						if (uname != window.myuser){
 							$('#notify').html('<span style="font-weight:bold;color:#' + ucolor + '">' + uname + "</span> caught " + rcvdmessage+" units!");
@@ -143,6 +145,7 @@ $(document).ready(function(){
 
 					case 'repop':
 						window.pop = rcvdmessage;
+						window.detpop.push(window.pop);
 						buildPlayground();
 						break;
 
@@ -242,6 +245,8 @@ $(document).ready(function(){
 
 							setTimeout(function(){
 								window.pop = rcvdmessage;
+								window.maxpop = window.pop;
+								window.detpop = [window.maxpop];
 								gameInit();
 							}, 3000);
 						}
@@ -394,6 +399,11 @@ $(document).ready(function(){
 				setListening();
 			}
 
+			buildPlots = function(){
+				$.getScript("jquery.flot.js", graphy01);
+				$.getScript("jquery.flot.js", graphy02);
+			}
+
 			buildPlayground = function(){
 				$('.container').html("");
 
@@ -419,14 +429,14 @@ $(document).ready(function(){
 					$('#graphies').append('<div id="graphy01"></div><div id="graphy02"></div>');
 
 					$('#graphy01').css({
-						'height' : '49%',
-						'width' : '49%'
+						'height' : '49%'
 					});
 
 					$('#graphy02').css({
-						'height' : '49%',
-						'width' : '49%'
+						'height' : '49%'
 					});
+
+					buildPlots();				
 				}
 
 				else{
@@ -521,6 +531,75 @@ $(document).ready(function(){
 				$('.btn').removeAttr('disabled');
 			}
 
+			//graphy01
+
+					graphy01 = function(){
+							var options = {
+								series: {
+									lines: {show: true},
+									points: {show: true}
+								},
+								xaxis: {
+									// ticks: 10,
+									// max: 10,
+									// tickDecimals: 0
+									ticks: 'none',
+									min: 0,
+									max: 20
+								},
+								yaxis: {
+									ticks: 'none',
+									min: 0,
+									max: 20
+									//tickDecimals: 0
+								}
+							};
+
+							var treateddetcatch = new Array();
+
+							for (var i = 0; i < window.mydetaccum.length; i++) {
+								treateddetcatch.push([i, window.mydetaccum[i]]);
+							};
+
+							var myobject = {
+									color: "#" + window.mycolor,
+									data: treateddetcatch
+								};
+
+						  $.plot($('#graphy01'), [myobject], options);
+							}
+
+					//graphy02
+
+					graphy02 = function(){
+							var options = {
+								series: {
+									lines: {show: true},
+								},
+								xaxis: {
+									ticks: 10,
+									max: 10,
+									tickDecimals: 0
+								},
+								yaxis: {
+									min: 0,
+									tickDecimals: 0
+								}
+							};
+
+							var treateddetpop = new Array();
+							for (var i = 0; i < window.detpop.length; i++) {
+								treateddetpop.push([i, window.detpop[i]]);
+							};
+
+							var myobject = {
+									color: "red",
+									data: treateddetpop
+								};
+
+						  $.plot($('#graphy02'), [myobject], options);
+							}
+
 			setListening = function(){
 				//send message UI is now blocked
 				msg = {
@@ -534,8 +613,8 @@ $(document).ready(function(){
 
 			imDone = function(){
 				window.myturn = false;
-				window.pop -= window.mycatch;
 				console.log(window.pop);
+				console.log(window.detpop);
 				blockUI();
 				 msg = {
 				 		type: 'end',
@@ -545,13 +624,17 @@ $(document).ready(function(){
 				 	};
 				conn.send(JSON.stringify(msg));
 				window.myaccum += window.mycatch;
-				resetUI();
+				window.mydetaccum.push(window.myaccum);
+				console.log(mydetaccum);
+				buildPlots();
+				//resetUI();
 			}
 
 			resetValues = function(){
 				window.mycatch = 0;
 				window.myaccum = 0;
 				window.myturn = false;
+				window.mydetaccum = [0];
 			}
 
 			buildLobby = function(){
