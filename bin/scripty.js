@@ -397,7 +397,7 @@ $(document).ready(function(){
 			buildPlayground = function(){
 				$('.container').html("");
 
-				$('.container').append('<div id="buttonBar"></div>')
+				$('.container').append('<div id="buttonBar"></div>');
 				$('#buttonBar').append('<p id="notify" class="bg-warning"></p>');
 
 				if (window.matchMedia("(min-width: 1025px)").matches){
@@ -407,6 +407,25 @@ $(document).ready(function(){
 						'position' : 'absolute',
 						'min-width' : '995px',
 						'margin-top' : '720px'
+					});
+
+					$('.container').append('<div class="well pull-right" id="graphies"></div>');
+					$('#graphies').css({
+						'width' : '35%',
+						'height' : '700px',
+						'margin' : '1% 0 1% 0'
+					});
+
+					$('#graphies').append('<div id="graphy01"></div><div id="graphy02"></div>');
+
+					$('#graphy01').css({
+						'height' : '49%',
+						'width' : '49%'
+					});
+
+					$('#graphy02').css({
+						'height' : '49%',
+						'width' : '49%'
 					});
 				}
 
