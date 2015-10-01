@@ -218,7 +218,7 @@ $(document).ready(function(){
 							// for (var i = 0; i < window.new_catches.length; i++) {
 							// 	all_new_array.push(window.new_catches[i]);
 							// }
-						  $.plot($('#placeholder'), window.new_catches, options);
+								$.plot($('#placeholder'), window.new_catches, options);
 							});
 
 						$('#chatbox').append('<hr>');
@@ -381,7 +381,6 @@ $(document).ready(function(){
 						"width" : "1024px",
 						"min-height" : "768px",
 						"background-size" : "1024px 768px"
-
 					});
 				}
 				else{
@@ -446,6 +445,25 @@ $(document).ready(function(){
 						'min-width' : '995px',
 						'margin-top' : '660px'
 					});
+
+					$('.container').append('<div class="well pull-right" id="graphies"></div>');
+					$('#graphies').css({
+						'width' : '35%',
+						'height' : '640px',
+						'margin' : '1% 0 1% 0'
+					});
+
+					$('#graphies').append('<div id="graphy01"></div><div id="graphy02"></div>');
+
+					$('#graphy01').css({
+						'height' : '49%'
+					});
+
+					$('#graphy02').css({
+						'height' : '49%'
+					});
+
+					buildPlots();
 				}
 
 
@@ -482,11 +500,11 @@ $(document).ready(function(){
 
 				$('#amigo').css({
 					'-moz-transform': 'scaleX(-1)',
-        		'-o-transform': 'scaleX(-1)',
-        		'-webkit-transform' : 'scaleX(-1)',
-        		'transform': 'scaleX(-1)',
-        		'filter' : 'FlipH',
-        		'-ms-filter' : 'FlipH'});		
+										'-o-transform': 'scaleX(-1)',
+										'-webkit-transform' : 'scaleX(-1)',
+										'transform': 'scaleX(-1)',
+										'filter' : 'FlipH',
+										'-ms-filter' : 'FlipH'});		
 				$('.fishy').draggable();				
 				$('#endBtn').click(imDone);
 				$('#resetBtn').click(resetUI);
@@ -533,72 +551,81 @@ $(document).ready(function(){
 
 			//graphy01
 
-					graphy01 = function(){
-							var options = {
-								series: {
-									lines: {show: true},
-									points: {show: true}
-								},
-								xaxis: {
-									// ticks: 10,
-									// max: 10,
-									// tickDecimals: 0
-									ticks: 'none',
-									min: 0,
-									max: 20
-								},
-								yaxis: {
-									ticks: 'none',
-									min: 0,
-									max: 20
-									//tickDecimals: 0
-								}
-							};
+			graphy01 = function(){
+				var options = {
+					series: {
+						lines: {show: true}
+					},
+					xaxis: {
+						show: true,
+						ticks: 20, //this depends on number of players
+						tickDecimals: 0,
+						min: 0,
+						max: 20, //this also depends on number of players
+						tickFormatter: function(val, ax){return ""}
+					},
+					yaxis: {
+						show: true,
+						ticks: 20, //this depends on number of players and rounds
+						tickDecimals: 0,
+						min: 0,
+						max: 20, //this also depends on number of players and rounds
+						tickFormatter: function(val, ax){return ""}
+					},
+				};
 
-							var treateddetcatch = new Array();
+				var treateddetcatch = new Array();
 
-							for (var i = 0; i < window.mydetaccum.length; i++) {
-								treateddetcatch.push([i, window.mydetaccum[i]]);
-							};
+				for (var i = 0; i < window.mydetaccum.length; i++) {
+					treateddetcatch.push([i, window.mydetaccum[i]]);
+				};
 
-							var myobject = {
-									color: "#" + window.mycolor,
-									data: treateddetcatch
-								};
+				var myobject = {
+					color: "#" + window.mycolor,
+					data: treateddetcatch
+				};
 
-						  $.plot($('#graphy01'), [myobject], options);
-							}
+				$.plot($('#graphy01'), [myobject], options);
+			}
 
-					//graphy02
+		//graphy02
 
-					graphy02 = function(){
-							var options = {
-								series: {
-									lines: {show: true},
-								},
-								xaxis: {
-									ticks: 10,
-									max: 10,
-									tickDecimals: 0
-								},
-								yaxis: {
-									min: 0,
-									tickDecimals: 0
-								}
-							};
+		graphy02 = function(){
+			var options = {
+				series: {
+					lines: {show: true},
+				},
+				xaxis: {
+					show: true,
+					min: 0,
+					ticks: 20, //this should be exactly the same as it was for graphy01
+					max: 20, //same here
+					tickDecimals: 0,
+					tickFormatter: function(val, ax){return ""}
+				},
+				yaxis: {
+					min: 0,
+					ticks: 20, //this should be exactly the same as it was for graphy01
+					max: 40, //but this should be any number (around twice as much as max population) which mod equals 0, that is max % ticks == 0
+					show: true,
+					tickDecimals: 0,
+					tickFormatter: function(val, ax){return ""}
+				}
+			};
 
-							var treateddetpop = new Array();
-							for (var i = 0; i < window.detpop.length; i++) {
-								treateddetpop.push([i, window.detpop[i]]);
-							};
+			var treateddetpop = new Array();
 
-							var myobject = {
-									color: "red",
-									data: treateddetpop
-								};
+			for (var i = 0; i < window.detpop.length; i++) {
+				treateddetpop.push([i, window.detpop[i]]);
+			};
 
-						  $.plot($('#graphy02'), [myobject], options);
-							}
+			var myobject = {
+				color: "red",
+				data: treateddetpop
+			};
+
+			$.plot($('#graphy02'), [myobject], options);
+		}
 
 			setListening = function(){
 				//send message UI is now blocked
@@ -616,12 +643,12 @@ $(document).ready(function(){
 				console.log(window.pop);
 				console.log(window.detpop);
 				blockUI();
-				 msg = {
-				 		type: 'end',
-				 		name: window.myuser,
-				 		color: window.mycolor,
-				 		message: window.mycatch
-				 	};
+					msg = {
+							type: 'end',
+							name: window.myuser,
+							color: window.mycolor,
+							message: window.mycatch
+						};
 				conn.send(JSON.stringify(msg));
 				window.myaccum += window.mycatch;
 				window.mydetaccum.push(window.myaccum);
@@ -651,7 +678,7 @@ $(document).ready(function(){
 				var reloadQueryString = '?reload=' + new Date().getTime();
 				stylesheets.each(function () {
 					this.href = this.href.replace(/\?.*|$/, reloadQueryString);
-				  });
+						});
 
 				$('#sendButton').css({
 					'margin-left': '5px',
