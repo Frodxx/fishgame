@@ -173,53 +173,53 @@ $(document).ready(function(){
 						};
 						
 
-						$('#chatbox').append('<div id="placeholder" style="width:700px;height:350px;"></div>');
+						// $('#chatbox').append('<div id="placeholder" style="width:700px;height:350px;"></div>');
 
-						$.getScript("jquery.flot.js", function(){
-							var options = {
-								series: {
-									lines: {show: true},
-									points: {show: true}
-								},
-								xaxis: {
-									ticks: 10,
-									min: 1,
-									max: 10,
-									tickDecimals: 0
-								},
-								yaxis: {
-									ticks: 4,
-									min: 0,
-									max: 3,
-									tickDecimals: 0
-								}
-							};
+						// $.getScript("jquery.flot.js", function(){
+						// 	var options = {
+						// 		series: {
+						// 			lines: {show: true},
+						// 			points: {show: true}
+						// 		},
+						// 		xaxis: {
+						// 			ticks: 10,
+						// 			min: 1,
+						// 			max: 10,
+						// 			tickDecimals: 0
+						// 		},
+						// 		yaxis: {
+						// 			ticks: 4,
+						// 			min: 0,
+						// 			max: 3,
+						// 			tickDecimals: 0
+						// 		}
+						// 	};
 
-							var catchy = []; //aux
-							window.new_catches = new Array();
+						// 	var catchy = []; //aux
+						// 	window.new_catches = new Array();
 
-							for (var i = 0; i < catches.length; i++) {
-								console.log(catches[i]);
-								for (var j = 0; j < catches[i].length; j++) {
-									console.log(catches[i][j]);
-									catchy.push([j+1, parseInt(catches[i][j])]);
-								}
+						// 	for (var i = 0; i < catches.length; i++) {
+						// 		console.log(catches[i]);
+						// 		for (var j = 0; j < catches[i].length; j++) {
+						// 			console.log(catches[i][j]);
+						// 			catchy.push([j+1, parseInt(catches[i][j])]);
+						// 		}
 
-								var myobject = {
-									label: names[i],
-									color: "#" + colors[i],
-									data: catchy
-								};
+						// 		var myobject = {
+						// 			label: names[i],
+						// 			color: "#" + colors[i],
+						// 			data: catchy
+						// 		};
 
-								window.new_catches.push(myobject);
-								catchy = [];
-							}
-							// all_new_array = [];
-							// for (var i = 0; i < window.new_catches.length; i++) {
-							// 	all_new_array.push(window.new_catches[i]);
-							// }
-								$.plot($('#placeholder'), window.new_catches, options);
-							});
+						// 		window.new_catches.push(myobject);
+						// 		catchy = [];
+						// 	}
+						// 	// all_new_array = [];
+						// 	// for (var i = 0; i < window.new_catches.length; i++) {
+						// 	// 	all_new_array.push(window.new_catches[i]);
+						// 	// }
+						// 		$.plot($('#placeholder'), window.new_catches, options);
+						// 	});
 
 						$('#chatbox').append('<hr>');
 						resetValues();
