@@ -48,6 +48,8 @@ Fish regeneration ratio.
 
 define("REGEN", floatval($prefs['regen']));
 
+define("SURVIVAL", intval($prefs['survival']));
+
 echo "Server started. Preferences are as follows:\n";
 var_dump($prefs);
 
@@ -60,7 +62,7 @@ class Server implements MessageComponentInterface {
 	protected $current_round = 0;
 	// protected $survival = $prefs['survival'];
 	protected $names = ["Dasyatis", "Pterois", "Xiphias", "Carassius", "Betta", "Poecilia", "Makaira", "Thunnus", "Carcharodon", "Octopus", "Arothron", "Pygoplites", "Ictalurus", "Callinectes", "Panulirus", "Palaemon", "Pleioptygma", "Crassostrea", "Loligo", "Melanocetus", "Sepiella", "Nautilus", "Chrysaora", "Squilla"];
-	protected $colors = ['007AFF','FF7000','15E25F','CFC700','CF1100','CF00BE','F00'];
+	protected $colors = ['007AFF','FF7000','15E25F','CFC700','CF1100','CF00BE','B25C71'];
 	protected $used_colors = [];
 
 	public function __construct() {
@@ -451,7 +453,7 @@ class Server implements MessageComponentInterface {
 		*/
 		$this->current_round += 1;
 
-		if (intval($prefs['survival']) == 1) {//!$this->survival
+		if ($SURVIVAL = "0") {//!$this->survival
 			//check rounds
 			if ($this->current_round > MAXROUNDS) {
 				$this->endGame();

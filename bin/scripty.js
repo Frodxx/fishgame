@@ -54,6 +54,7 @@ $(document).ready(function(){
 						window.mycolor = ucolor;
 						window.mycatch = 0;
 						window.myaccum = 0;
+						window.mydetaccum = [0];
 						window.myturn = false;
 
 						$('#chatbox').append('<div>You are <span style="font-weight: bold;color:#' +mycolor+'">'+myuser + '</span>.<hr></div>');
@@ -134,6 +135,7 @@ $(document).ready(function(){
 
 					case 'catch':
 						window.pop -= rcvdmessage;
+						//window.detpop.push(window.pop);
 
 						if (uname != window.myuser){
 							$('#notify').html('<span style="font-weight:bold;color:#' + ucolor + '">' + uname + "</span> caught " + rcvdmessage+" units!");
@@ -143,6 +145,7 @@ $(document).ready(function(){
 
 					case 'repop':
 						window.pop = rcvdmessage;
+						window.detpop.push(window.pop);
 						buildPlayground();
 						break;
 
@@ -170,53 +173,53 @@ $(document).ready(function(){
 						};
 						
 
-						$('#chatbox').append('<div id="placeholder" style="width:700px;height:350px;"></div>');
+						// $('#chatbox').append('<div id="placeholder" style="width:700px;height:350px;"></div>');
 
-						$.getScript("jquery.flot.js", function(){
-							var options = {
-								series: {
-									lines: {show: true},
-									points: {show: true}
-								},
-								xaxis: {
-									ticks: 10,
-									min: 1,
-									max: 10,
-									tickDecimals: 0
-								},
-								yaxis: {
-									ticks: 4,
-									min: 0,
-									max: 3,
-									tickDecimals: 0
-								}
-							};
+						// $.getScript("jquery.flot.js", function(){
+						// 	var options = {
+						// 		series: {
+						// 			lines: {show: true},
+						// 			points: {show: true}
+						// 		},
+						// 		xaxis: {
+						// 			ticks: 10,
+						// 			min: 1,
+						// 			max: 10,
+						// 			tickDecimals: 0
+						// 		},
+						// 		yaxis: {
+						// 			ticks: 4,
+						// 			min: 0,
+						// 			max: 3,
+						// 			tickDecimals: 0
+						// 		}
+						// 	};
 
-							var catchy = []; //aux
-							window.new_catches = new Array();
+						// 	var catchy = []; //aux
+						// 	window.new_catches = new Array();
 
-							for (var i = 0; i < catches.length; i++) {
-								console.log(catches[i]);
-								for (var j = 0; j < catches[i].length; j++) {
-									console.log(catches[i][j]);
-									catchy.push([j+1, parseInt(catches[i][j])]);
-								}
+						// 	for (var i = 0; i < catches.length; i++) {
+						// 		console.log(catches[i]);
+						// 		for (var j = 0; j < catches[i].length; j++) {
+						// 			console.log(catches[i][j]);
+						// 			catchy.push([j+1, parseInt(catches[i][j])]);
+						// 		}
 
-								var myobject = {
-									label: names[i],
-									color: "#" + colors[i],
-									data: catchy
-								};
+						// 		var myobject = {
+						// 			label: names[i],
+						// 			color: "#" + colors[i],
+						// 			data: catchy
+						// 		};
 
-								window.new_catches.push(myobject);
-								catchy = [];
-							}
-							// all_new_array = [];
-							// for (var i = 0; i < window.new_catches.length; i++) {
-							// 	all_new_array.push(window.new_catches[i]);
-							// }
-						  $.plot($('#placeholder'), window.new_catches, options);
-							});
+						// 		window.new_catches.push(myobject);
+						// 		catchy = [];
+						// 	}
+						// 	// all_new_array = [];
+						// 	// for (var i = 0; i < window.new_catches.length; i++) {
+						// 	// 	all_new_array.push(window.new_catches[i]);
+						// 	// }
+						// 		$.plot($('#placeholder'), window.new_catches, options);
+						// 	});
 
 						$('#chatbox').append('<hr>');
 						resetValues();
@@ -242,6 +245,8 @@ $(document).ready(function(){
 
 							setTimeout(function(){
 								window.pop = rcvdmessage;
+								window.maxpop = window.pop;
+								window.detpop = [window.maxpop];
 								gameInit();
 							}, 3000);
 						}
@@ -376,7 +381,6 @@ $(document).ready(function(){
 						"width" : "1024px",
 						"min-height" : "768px",
 						"background-size" : "1024px 768px"
-
 					});
 				}
 				else{
@@ -394,10 +398,15 @@ $(document).ready(function(){
 				setListening();
 			}
 
+			buildPlots = function(){
+				$.getScript("jquery.flot.js", graphy01);
+				$.getScript("jquery.flot.js", graphy02);
+			}
+
 			buildPlayground = function(){
 				$('.container').html("");
 
-				$('.container').append('<div id="buttonBar"></div>')
+				$('.container').append('<div id="buttonBar"></div>');
 				$('#buttonBar').append('<p id="notify" class="bg-warning"></p>');
 
 				if (window.matchMedia("(min-width: 1025px)").matches){
@@ -408,6 +417,25 @@ $(document).ready(function(){
 						'min-width' : '995px',
 						'margin-top' : '720px'
 					});
+
+					$('.container').append('<div class="well pull-right" id="graphies"></div>');
+					$('#graphies').css({
+						'width' : '35%',
+						'height' : '700px',
+						'margin' : '1% 0 1% 0'
+					});
+
+					$('#graphies').append('<div id="graphy01"></div><div id="graphy02"></div>');
+
+					$('#graphy01').css({
+						'height' : '49%'
+					});
+
+					$('#graphy02').css({
+						'height' : '49%'
+					});
+
+					buildPlots();				
 				}
 
 				else{
@@ -417,6 +445,25 @@ $(document).ready(function(){
 						'min-width' : '995px',
 						'margin-top' : '660px'
 					});
+
+					$('.container').append('<div class="well pull-right" id="graphies"></div>');
+					$('#graphies').css({
+						'width' : '35%',
+						'height' : '640px',
+						'margin' : '1% 0 1% 0'
+					});
+
+					$('#graphies').append('<div id="graphy01"></div><div id="graphy02"></div>');
+
+					$('#graphy01').css({
+						'height' : '49%'
+					});
+
+					$('#graphy02').css({
+						'height' : '49%'
+					});
+
+					buildPlots();
 				}
 
 
@@ -453,11 +500,11 @@ $(document).ready(function(){
 
 				$('#amigo').css({
 					'-moz-transform': 'scaleX(-1)',
-        		'-o-transform': 'scaleX(-1)',
-        		'-webkit-transform' : 'scaleX(-1)',
-        		'transform': 'scaleX(-1)',
-        		'filter' : 'FlipH',
-        		'-ms-filter' : 'FlipH'});		
+										'-o-transform': 'scaleX(-1)',
+										'-webkit-transform' : 'scaleX(-1)',
+										'transform': 'scaleX(-1)',
+										'filter' : 'FlipH',
+										'-ms-filter' : 'FlipH'});		
 				$('.fishy').draggable();				
 				$('#endBtn').click(imDone);
 				$('#resetBtn').click(resetUI);
@@ -502,6 +549,84 @@ $(document).ready(function(){
 				$('.btn').removeAttr('disabled');
 			}
 
+			//graphy01
+
+			graphy01 = function(){
+				var options = {
+					series: {
+						lines: {show: true}
+					},
+					xaxis: {
+						show: true,
+						ticks: 20, //this depends on number of players
+						tickDecimals: 0,
+						min: 0,
+						max: 20, //this also depends on number of players
+						tickFormatter: function(val, ax){return ""}
+					},
+					yaxis: {
+						show: true,
+						ticks: 20, //this depends on number of players and rounds
+						tickDecimals: 0,
+						min: 0,
+						max: 20, //this also depends on number of players and rounds
+						tickFormatter: function(val, ax){return ""}
+					},
+				};
+
+				var treateddetcatch = new Array();
+
+				for (var i = 0; i < window.mydetaccum.length; i++) {
+					treateddetcatch.push([i, window.mydetaccum[i]]);
+				};
+
+				var myobject = {
+					color: "#" + window.mycolor,
+					data: treateddetcatch
+				};
+
+				$.plot($('#graphy01'), [myobject], options);
+			}
+
+		//graphy02
+
+		graphy02 = function(){
+			var options = {
+				series: {
+					lines: {show: true},
+				},
+				xaxis: {
+					show: true,
+					min: 0,
+					ticks: 20, //this should be exactly the same as it was for graphy01
+					max: 20, //same here
+					tickDecimals: 0,
+					tickFormatter: function(val, ax){return ""}
+				},
+				yaxis: {
+					min: 0,
+					ticks: 20, //this should be exactly the same as it was for graphy01
+					max: 40, //but this should be any number (around twice as much as max population) which mod equals 0, that is max % ticks == 0
+					show: true,
+					tickDecimals: 0,
+					tickFormatter: function(val, ax){return ""}
+				}
+			};
+
+			var treateddetpop = new Array();
+
+			for (var i = 0; i < window.detpop.length; i++) {
+				treateddetpop.push([i, window.detpop[i]]);
+			};
+
+			var myobject = {
+				color: "red",
+				data: treateddetpop
+			};
+
+			$.plot($('#graphy02'), [myobject], options);
+		}
+
 			setListening = function(){
 				//send message UI is now blocked
 				msg = {
@@ -515,24 +640,28 @@ $(document).ready(function(){
 
 			imDone = function(){
 				window.myturn = false;
-				window.pop -= window.mycatch;
 				console.log(window.pop);
+				console.log(window.detpop);
 				blockUI();
-				 msg = {
-				 		type: 'end',
-				 		name: window.myuser,
-				 		color: window.mycolor,
-				 		message: window.mycatch
-				 	};
+					msg = {
+							type: 'end',
+							name: window.myuser,
+							color: window.mycolor,
+							message: window.mycatch
+						};
 				conn.send(JSON.stringify(msg));
 				window.myaccum += window.mycatch;
-				resetUI();
+				window.mydetaccum.push(window.myaccum);
+				console.log(mydetaccum);
+				buildPlots();
+				//resetUI();
 			}
 
 			resetValues = function(){
 				window.mycatch = 0;
 				window.myaccum = 0;
 				window.myturn = false;
+				window.mydetaccum = [0];
 			}
 
 			buildLobby = function(){
@@ -549,7 +678,7 @@ $(document).ready(function(){
 				var reloadQueryString = '?reload=' + new Date().getTime();
 				stylesheets.each(function () {
 					this.href = this.href.replace(/\?.*|$/, reloadQueryString);
-				  });
+						});
 
 				$('#sendButton').css({
 					'margin-left': '5px',
