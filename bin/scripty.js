@@ -128,8 +128,9 @@ $(document).ready(function(){
 							$('#notify').html("It is your turn!");
 						}
 						else{
-							$('#notify').html('It is <span style="font-weight:bold;color:#' + ucolor + '">' + uname + "</span>'s turn!");
+							resetUI();
 							blockUI();
+							$('#notify').html('It is <span style="font-weight:bold;color:#' + ucolor + '">' + uname + "</span>'s turn!");
 						}
 						break;
 
