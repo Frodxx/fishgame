@@ -57,7 +57,7 @@ $(document).ready(function(){
 						window.mydetaccum = [0];
 						window.myturn = false;
 
-						$('#chatbox').append('<div>You are <span style="font-weight: bold;color:#' +mycolor+'">'+myuser + '</span>.<hr></div>');
+						$('#chatbox').append('<div id="yourName">You are <span style="font-weight: bold;color:#' +mycolor+'">'+myuser + '</span>.<hr></div>');
 						break;
 
 					case 'text':
@@ -378,7 +378,7 @@ $(document).ready(function(){
 					//1025 or more
 					$('.container').css({
 						"display": "block",
-						"background-image":"url('img/retbg.jpg')",
+						"background-image":"url('../img/retbg.jpg')",
 						"width" : "1024px",
 						"min-height" : "768px",
 						"background-size" : "1024px 768px"
@@ -389,7 +389,7 @@ $(document).ready(function(){
 					$('.container').css({
 						"display": "block",
 						"position": "relative",
-						"background-image":"url('img/retbg.jpg')",
+						"background-image":"url('../img/retbg.jpg')",
 						"background-size" : "1024px 710px",
 						"width" : "100%",
 						"min-height" : "705px"
@@ -496,7 +496,7 @@ $(document).ready(function(){
 				});
 				
 				for (var i = 0; i < window.pop; i++) {
-					$('.container').append('<img class="fishy" src="img/fish.png">');
+					$('.container').append('<img class="fishy" src="../img/fish.png">');
 				}
 
 				$('#amigo').css({
@@ -702,4 +702,34 @@ $(document).ready(function(){
 			$('#readyCheck').bootstrapToggle("off");
 			$('#sendButton').click(sendMsg);
 			$('#readyCheck').change(setReady);
+			$('#readyCheck').parent().attr('id', 'readyContainer');
+
+			var tour = {
+					id: "tourcito",
+					steps: [
+					{
+						target: "yourName",
+						title: "Who are you?",
+						content: "This is your nickname and color.",
+						placement: 'top'
+					},
+					{
+						target: "chatInput",
+						title: "Say hi!",
+						content: "Type here to send a message to all players in the room.",
+						placement: 'top'
+					},
+					{
+						target: "readyContainer",
+						title: "Are you ready?",
+						content: "Check this when you are ready to play. The game will start as soon as everyone in the room is ready.",
+						placement: 'left'
+					}
+					]
+				};
+
+			$('#halp').click(function(){
+				hopscotch.startTour(tour);
+			});
+
 		});
