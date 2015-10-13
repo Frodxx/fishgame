@@ -8,3 +8,4 @@ use\ case
 composer.json
 composer.lock
 flot/
+bin/hopscotch.*

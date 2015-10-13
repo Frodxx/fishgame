@@ -474,10 +474,13 @@ $(document).ready(function(){
 					'display' : 'inline-block'
 				});
 
-				$('#buttonBar').append('<button id="endBtn" class="btn btn-info pull-right">Fin</button>');
+				$('#buttonBar').append('<button id="halpy" class="btn btn-info pull-right"><strong>?</strong></button>');
+
+				$('#buttonBar').append('<button id="endBtn" class="btn btn-success pull-right">End</button>');
 
 				$('#endBtn').css({
-					'min-width' : '100px'
+					'min-width' : '100px',
+					'margin-right': '15px'
 				});
 
 				$('#buttonBar').append('<button id="resetBtn" class="btn btn-warning pull-right">Reset</button>');
@@ -499,6 +502,9 @@ $(document).ready(function(){
 					$('.container').append('<img class="fishy" src="../img/fish.png">');
 				}
 
+				$('.container').find(".fishy:nth-last-child(-n+1)").attr("id", "amigo");
+
+
 				$('#amigo').css({
 					'-moz-transform': 'scaleX(-1)',
 										'-o-transform': 'scaleX(-1)',
@@ -509,6 +515,9 @@ $(document).ready(function(){
 				$('.fishy').draggable();				
 				$('#endBtn').click(imDone);
 				$('#resetBtn').click(resetUI);
+				$('#halpy').click(function(){
+					hopscotch.startTour(toury);
+				});
 
 				blockUI();
 
@@ -723,10 +732,68 @@ $(document).ready(function(){
 						target: "readyContainer",
 						title: "Are you ready?",
 						content: "Check this when you are ready to play. The game will start as soon as everyone in the room is ready.",
-						placement: 'left'
+						placement: 'top',
+						xOffset: -150,
+						arrowOffset: 175
 					}
 					]
 				};
+
+			var toury = {
+				id: "tourcito2",
+				steps: [
+				{
+					target: "amigo",
+					title: "Catch this!",
+					content: "Click on a fish to catch it.",
+					placement: 'top'
+				},
+				{
+					target: "notify",
+					title: "Your catch today",
+					content: "You can catch up to 3 units per turn.",
+					placement: 'right',
+					yOffset: -75,
+					arrowOffset: 65
+				},
+				{
+					target: "catchy",
+					title: "Your total catch",
+					content: "All the units you've caught so far.",
+					placement: 'left',
+					yOffset: -75,
+					arrowOffset: 65
+				},
+				{
+					target: "graphy01",
+					title: "How are YOU doing?",
+					content: "This graph shows how much you've caught.",
+					placement: 'left'
+				},
+				{
+					target: "graphy02",
+					title: "How are WE doing?",
+					content: "This graph shows the fish population",
+					placement: 'left'
+				},
+				{
+					target: "resetBtn",
+					title: "Oops...",
+					content: "Click here to let the fish go away. (You can catch them again, if you like).",
+					placement: 'top',
+					xOffset: -50,
+					arrowOffset: 60
+				},
+				{
+					target: "endBtn",
+					title: "I'm so done",
+					content: "Click here to end your turn.",
+					placement: 'top',
+					xOffset: -200,
+					arrowOffset: 220
+				}
+				]
+			};
 
 			$('#halp').click(function(){
 				hopscotch.startTour(tour);
