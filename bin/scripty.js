@@ -505,13 +505,13 @@ $(document).ready(function(){
 				$('.container').find(".fishy:nth-last-child(-n+1)").attr("id", "amigo");
 
 
-				$('#amigo').css({
-					'-moz-transform': 'scaleX(-1)',
-										'-o-transform': 'scaleX(-1)',
-										'-webkit-transform' : 'scaleX(-1)',
-										'transform': 'scaleX(-1)',
-										'filter' : 'FlipH',
-										'-ms-filter' : 'FlipH'});		
+				// $('#amigo').css({
+				// 	'-moz-transform': 'scaleX(-1)',
+				// 						'-o-transform': 'scaleX(-1)',
+				// 						'-webkit-transform' : 'scaleX(-1)',
+				// 						'transform': 'scaleX(-1)',
+				// 						'filter' : 'FlipH',
+				// 						'-ms-filter' : 'FlipH'});		
 				$('.fishy').draggable();				
 				$('#endBtn').click(imDone);
 				$('#resetBtn').click(resetUI);

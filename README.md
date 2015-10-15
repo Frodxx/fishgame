@@ -61,11 +61,36 @@ You can find detailed installation directions below.
 
 ### 4. Installing Flot ###
 
-1. Download [Flot](http://www.flotcharts.org/) via zip.
+1. Download [Flot](http://www.flotcharts.org/) in zip format.
 2. Unzip contents. Be sure to remember where you unzipped **Flot**.
 3. Copy `jquery.flot.js` from the **Flot** unzipped contents.
 4. Navigate to **The Fish Game** directory, and then to the **bin** folder.
 5. Paste `jquery.flot.js` you copied earlier.
+
+### 5. Installing Hopscotch ###
+
+1. Download the latest [Hopscotch](https://github.com/linkedin/hopscotch/releases) via zip.
+2. Unzip contents. Be sure to remember where you unzipped **Hopscotch**.
+
+#### 5.1 CSS ####
+
+1. Navigate to `dist` folder, and then to `css` folder.
+2. Copy the `hopscotch.css` file.
+3. Navigate to **The Fish Game** directory, and then to the **bin** folder.
+4. Paste `hopscotch.css` you copied earlier.
+
+#### 5.2 JS ####
+
+1. Navigate to `dist` folder, and then to `js` folder.
+2. Copy the `hopscotch.js` file.
+3. Navigate to **The Fish Game** directory, and then to the **bin** folder.
+4. Paste `hopscotch.js` you copied earlier.
+
+#### 5.3 Images ####
+1. Navigate to `dist` folder, and then to `img` folder.
+2. Copy **both** `sprite-green` and `sprite-orange` files.
+3. Navigate to **The Fish Game** directory, and then to the **img** folder.
+4. Paste **both** `sprite-green` and `sprite-orange` you copied earlier.
 
 That should install all the required components.
 
