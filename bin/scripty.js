@@ -767,13 +767,13 @@ $(document).ready(function(){
 				{
 					target: "graphy01",
 					title: "How are YOU doing?",
-					content: "This graph shows how much you've caught.",
+					//content: "This graph shows how much you've caught.",
 					placement: 'left'
 				},
 				{
 					target: "graphy02",
 					title: "How are WE doing?",
-					content: "This graph shows the fish population",
+					//content: "This graph shows the fish population",
 					placement: 'left'
 				},
 				{
