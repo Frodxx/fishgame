@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>The Fishgame - Stat Viewer</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="sitewide.css">
+	<link rel="stylesheet" href="hopscotch.css">
+	<link rel="stylesheet" href="stats.css">
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<!-- Latest compiled JavaScript -->
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+	<!-- jQuery UI -->
+	<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+	<!-- -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+	<script src="hopscotch.js"></script>
+</head>
+<body>
+<div class="container">
+
+	<div class="row">
+		<div class="col-xs-12">
+			<div class="page-header">
+				<h1>The Fishgame <small>Statistics</small></h1>
+			</div>
+		</div>
+	</div>
+
+	<section id="graph1" class="row graph-group">
+			<h3>Graph Group 1</h3>
+			<div class="collapsible">
+				<div class="col-xs-12 col-sm-6">
+					<label>
+						<input type="checkbox" name="player 1" value="1">
+						Dynamically Generated Player Name
+					</label>
+				</div>
+				<div class="col-xs-12 col-sm-6">
+					<label>
+					<input type="checkbox" name="player 2" value="2">
+						Dynamically Generated Player Name
+					</label>
+				</div>
+				<div class="col-xs-12 col-sm-6">
+					<label>
+					<input type="checkbox" name="player 3" value="3">
+						Dynamically Generated Player Name
+					</label>
+				</div>
+				<div class="col-xs-12 col-sm-6">
+					<label>
+					<input type="checkbox" name="player 4" value="4">
+						Dynamically Generated Player Name
+					</label>
+				</div>
+				<div class="col-xs-12 col-sm-6">
+					<label>
+					<input type="checkbox" name="player 5" value="5">
+						Dynamically Generated Player Name
+					</label>
+				</div>
+				<div class="cb pt"></div>
+				<div class="col-xs-12 col-sm-6">
+					<label>
+					<input type="radio" name="charts" value="pop">
+						Population
+					</label>
+				</div>
+				<div class="col-xs-12 col-sm-6">
+					<label>
+					<input type="radio" name="charts" value="catches">
+						Catch Distribution
+					</label>
+				</div>
+				<button type="button" class="btn btn-success fr mar">Go!</button>
+			</div>
+			<div class="cb pt"></div>
+	</section>
+	<button type="button" class="btn btn-primary fr mar">Add new graph</button>
+</div>
+</body>
+</html>
