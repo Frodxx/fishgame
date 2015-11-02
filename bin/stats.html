@@ -32,46 +32,56 @@
 	<section id="graph1" class="row graph-group">
 			<h3>Graph Group 1</h3>
 			<div class="collapsible">
+
+			<input id="stats01" checked="checked" class="ml" type="radio" name="statgroup" value="stats01"> Players
+			<div class="cb pt"></div>
+
 				<div class="col-xs-12 col-sm-6">
 					<label>
-						<input type="checkbox" name="player 1" value="1">
+						<input class="group01" type="checkbox" name="player 1" value="1">
 						Dynamically Generated Player Name
 					</label>
 				</div>
 				<div class="col-xs-12 col-sm-6">
 					<label>
-					<input type="checkbox" name="player 2" value="2">
+					<input class="group01" type="checkbox" name="player 2" value="2">
 						Dynamically Generated Player Name
 					</label>
 				</div>
 				<div class="col-xs-12 col-sm-6">
 					<label>
-					<input type="checkbox" name="player 3" value="3">
+					<input class="group01" type="checkbox" name="player 3" value="3">
 						Dynamically Generated Player Name
 					</label>
 				</div>
 				<div class="col-xs-12 col-sm-6">
 					<label>
-					<input type="checkbox" name="player 4" value="4">
+					<input class="group01" type="checkbox" name="player 4" value="4">
 						Dynamically Generated Player Name
 					</label>
 				</div>
 				<div class="col-xs-12 col-sm-6">
 					<label>
-					<input type="checkbox" name="player 5" value="5">
+					<input class="group01" type="checkbox" name="player 5" value="5">
 						Dynamically Generated Player Name
 					</label>
 				</div>
+
 				<div class="cb pt"></div>
+
+				<input id="stats02" class="ml" type="radio" name="statgroup" value="stats02"> Other Stats
+				
+				<div class="cb pt"></div>
+
 				<div class="col-xs-12 col-sm-6">
 					<label>
-					<input type="radio" name="charts" value="pop">
+					<input class="group02" type="radio" name="charts" value="pop">
 						Population
 					</label>
 				</div>
 				<div class="col-xs-12 col-sm-6">
 					<label>
-					<input type="radio" name="charts" value="catches">
+					<input class="group02" type="radio" name="charts" value="catches">
 						Catch Distribution
 					</label>
 				</div>
@@ -81,5 +91,27 @@
 	</section>
 	<button type="button" class="btn btn-primary fr mar">Add new graph</button>
 </div>
+<script type="text/javascript">
+$(function(){
+	
+	checkEd = function(){
+		if ($('#stats01').is(":checked")){
+			console.log("yes");
+			$('.group01').removeAttr('disabled');
+			$('.group02').attr('disabled', 'true');
+		}
+		else{
+			console.log("nein");
+			$('.group02').removeAttr('disabled');
+			$('.group01').attr('disabled', 'true')
+		}
+	}
+
+	$('#stats01').click(checkEd);
+	$('#stats02').click(checkEd);
+	checkEd();
+});
+
+</script>
 </body>
 </html>
