@@ -229,6 +229,19 @@ class Server implements MessageComponentInterface {
 				}
 				break;
 
+			case 'statInit':
+				foreach ($this->players as $client) {
+					$names[] = $client->uname;
+					$colors[] = $client->ucolor;
+				}
+
+				$jason = ["type" => "statInit", "names" => $names, "colors" => $colors];
+				$msg = json_encode($jason);
+				$from->send($msg);
+
+				echo "Sent initial values to spectators\n";
+				break;
+
 		}
 
 	}

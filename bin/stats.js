@@ -8,16 +8,25 @@ $(document).ready(function(){
 
 	conn.onopen = function(e){
 		console.log("Connected.")
+		var msg = {type: 'statInit'};
+		conn.send(JSON.stringify(msg));
 	}
 
 	conn.onmessage = function(e){
 		var msg = JSON.parse(e.data);
 		var msgtype = msg.type;
 		var rcvdmessage = msg.message;
-		var uname = msg.name;
-		var ucolor = msg.color;
 
 		console.log(msg); //debug
+
+		switch(msgtype){
+
+			case "statInit":
+			window.colors = msg.colors;
+			window.names = msg.names;
+
+			renameLabels(1);
+		}
 	}
 
 	conn.onclose = function(e){
@@ -31,14 +40,17 @@ $(document).ready(function(){
 			$('.group02').css("color", "lightgray");
 			$('.group02').prop("checked", false);
 
+
 			$('.group01').removeAttr("disabled");
-			$('.group01').css("color", "black");
+			$('label').filter('.group01').css("color", "black");
+			$('.group01').css("text-decoration", "none");
 			}
 		else{
 			//enable group02 & disable group01
 			$('.group01').attr("disabled", "true");
 			$('.group01').css("color", "lightgray");
 			$('.group01').prop("checked", false);
+			$('.group01').css("text-decoration", "line-through");
 
 			$('.group02').removeAttr("disabled");
 			$('.group02').css("color", "black");
@@ -53,21 +65,35 @@ $(document).ready(function(){
 			$('.group04').prop("checked", false);
 
 			$('.group03').removeAttr("disabled");
-			$('.group03').css("color", "black");
+			$('label').filter('.group03').css("color", "black");
+			$('.group03').css("text-decoration", "none");
 			}
 		else{
 			//enable group04 & disable group03
 			$('.group03').attr("disabled", "true");
 			$('.group03').css("color", "lightgray");
 			$('.group03').prop("checked", false);
+			$('.group03').css("text-decoration", "line-through");
 
 			$('.group04').removeAttr("disabled");
 			$('.group04').css("color", "black");
 		}
 	}
 
+	renameLabels = function(group){
+		for (var i = 0; i < window.names.length; i++) {
+			if (group == 1) {
+				$('span').eq(i).text(window.names[i]);
+				$('span').eq(i).css("color", "#" + window.colors[i]);
+			}
+			else{
+				$('span').eq(i+names.length).text(window.names[i]);
+				$('span').eq(i+names.length).css("color", "#" + window.colors[i]);
+			}
+			}
+	}
 
-	$('#another').click(function(){$('.container').append('<section id="graph02" class="row graph-group"><h3>Graph Group 2</h3><div class="collapsible"><input id="stats03" checked="checked" class="ml" type="radio" name="statgroup02" value="stats03"> Players<div class="cb pt"></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 1" value="1"> Dynamically Generated Player Name</label></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 2" value="2"> Dynamically Generated Player Name</label></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 3" value="3"> Dynamically Generated Player Name</label></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 4" value="4"> Dynamically Generated Player Name</label></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 5" value="5"> Dynamically Generated Player Name</label></div><div class="cb pt"></div><input id="stats04" class="ml" type="radio" name="statgroup02" value="stats04"> Other Stats<div class="cb pt"></div><div class="col-xs-12 col-sm-6"><label class="group04"><input class="group04" type="radio" name="charts" value="pop"> Population</label></div><div class="col-xs-12 col-sm-6"><label class="group04"><input class="group04" type="radio" name="charts" value="catches"> Catch Distribution</label></div><button type="button" class="btn btn-success fr mar">Go!</button><button id="del" type="button" class="btn btn-danger fr mar">Delete</button></div><div class="cb pt"></div></section>');
+	$('#another').click(function(){$('.container').append('<section id="graph02" class="row graph-group"><h3>Graph Group 2</h3><div class="collapsible"><input id="stats03" checked="checked" class="ml" type="radio" name="statgroup02" value="stats03"> Players<div class="cb pt"></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 1" value="1"> <span>Dynamically Generated Player Name</span></label></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 2" value="2"> <span>Dynamically Generated Player Name</span></label></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 3" value="3"> <span>Dynamically Generated Player Name</span></label></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 4" value="4"> <span>Dynamically Generated Player Name</span></label></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 5" value="5"> <span>Dynamically Generated Player Name</span></label></div><div class="cb pt"></div><input id="stats04" class="ml" type="radio" name="statgroup02" value="stats04"> Other Stats<div class="cb pt"></div><div class="col-xs-12 col-sm-6"><label class="group04"><input class="group04" type="radio" name="charts" value="pop"> Population</label></div><div class="col-xs-12 col-sm-6"><label class="group04"><input class="group04" type="radio" name="charts" value="catches"> Catch Distribution</label></div><button type="button" id="go02" class="btn btn-success fr mar">Go!</button><button id="del" type="button" class="btn btn-danger fr mar">Delete</button></div><div class="cb pt"></div></section>');
 
 	
 		$('#another').css("visibility", "hidden");
@@ -77,7 +103,8 @@ $(document).ready(function(){
 			$('#graph02').remove();
 			$('#another').css("visibility", "visible");
 		});
-		checkEd02();
+		renameLabels(2);
+		checkEd02();		
 	});
 
 	$('#stats01').click(checkEd01);
