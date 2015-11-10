@@ -57,7 +57,7 @@ class Server implements MessageComponentInterface {
 	
 	protected $clients;/*!<	A SplObjectStorage that holds connection objects (sockets). */
 	protected $listeners; /*!< Helper variable to storage number of listening clients when the game is running */
-	protected $pop;
+	protected $pop = MAXPOP;
 	protected $max_rounds = 0;
 	protected $current_round = 0;
 	// protected $survival = $prefs['survival'];
@@ -235,7 +235,7 @@ class Server implements MessageComponentInterface {
 					$colors[] = $client->ucolor;
 				}
 
-				$jason = ["type" => "statInit", "names" => $names, "colors" => $colors];
+				$jason = ["type" => "statInit", "names" => $names, "colors" => $colors, "pop" => $this->pop];
 				$msg = json_encode($jason);
 				$from->send($msg);
 
@@ -463,6 +463,7 @@ class Server implements MessageComponentInterface {
 			unset($client->my_catch);
 			$client->my_catch = array();
 		}
+		$this->pop = MAXPOP;
 	}
 
 	public function endRound(){

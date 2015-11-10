@@ -6,7 +6,7 @@ $(document).ready(function(){
 	console.log(ws);
 	var conn = new WebSocket(ws);
 
-	conn.onopen = function(e){
+	conn.onopen = function(){
 		console.log("Connected.")
 		var msg = {type: 'statInit'};
 		conn.send(JSON.stringify(msg));
@@ -16,21 +16,94 @@ $(document).ready(function(){
 		var msg = JSON.parse(e.data);
 		var msgtype = msg.type;
 		var rcvdmessage = msg.message;
+		var ucolor = msg.color;
+		var uname = msg.name;
 
 		console.log(msg); //debug
 
 		switch(msgtype){
 
 			case "statInit":
-			window.colors = msg.colors;
-			window.names = msg.names;
 
-			renameLabels(1);
+				window.colors = msg.colors;
+				window.names = msg.names;
+				
+				window.catches = new Array();
+				for (var i = 0; i < window.names.length; i++) {
+					window.catches.push(new Array());
+					window.catches[i].push(0);
+				};
+				console.log(window.catches);
+
+				window.pop = msg.pop;
+				window.detpop = [window.pop];
+				renameLabels(1);
+				break;
+
+			case "catch":
+				window.pop -= rcvdmessage;
+				window.detpop.push(window.pop);
+
+				var pos = window.colors.indexOf(ucolor)
+				window.catches[pos].push(parseInt(window.catches[pos][window.catches[pos].length - 1])+parseInt(rcvdmessage));
+				break;
+
+			case 'repop':
+				window.pop = rcvdmessage;
+				window.detpop.push(window.pop);
+				break;
+
+			case 'start':
+				window.pop = rcvdmessage;
+				window.detpop = [];
+				window.detpop.push(window.pop);
+				window.catches = [];
+				for (var i = 0; i < window.names.length; i++) {
+					window.catches.push(new Array());
+					window.catches[i].push(0);
+				}
+				break;
 		}
 	}
 
-	conn.onclose = function(e){
+	conn.onclose = function(){
 		console.log("Socket connection ended.");
+	}
+
+	drawGraph = function(parameters, type, placeholder) {
+		
+		switch(type){
+			case "players":
+
+				var options = {
+					series: {
+						lines: {show: true}
+					},
+					xaxis: {
+						show: true,
+						ticks: 20,
+						tickDecimals: 0,
+						min: 0,
+						max: 20,
+						tickFormatter: function(val, ax){return ""}
+					},
+					yaxis: {
+						show: true,
+						ticks: 20,
+						tickDecimals: 0,
+						min: 0,
+						max: 20,
+						tickFormatter: function(val, ax){return ""}
+					}
+				};
+
+				for (var i = 0; i < window.catches.length; i++) {
+					window.catches[i] //pending
+				};
+			break;
+		}
+
+		$.plot(placeholder, data, options);
 	}
 	
 	checkEd01 = function(){
