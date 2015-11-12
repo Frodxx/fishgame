@@ -6,8 +6,9 @@ $(document).ready(function(){
 	console.log(ws);
 	var conn = new WebSocket(ws);
 
-	conn.onopen = function(){
+	conn.onopen = function(e){
 		console.log("Connected.")
+		console.log(e);
 		var msg = {type: 'statInit'};
 		conn.send(JSON.stringify(msg));
 	}
@@ -66,8 +67,77 @@ $(document).ready(function(){
 		}
 	}
 
-	conn.onclose = function(){
+	conn.onclose = function(e){
 		console.log("Socket connection ended.");
+		console.log(e);
+	}
+
+	getParameters = function(group){
+		params = {};
+
+		if (group == 1){
+			if($('#stats01').is(":checked")){
+				//players 01
+				params.chartType = "players";
+				params.players01 = [];
+
+				for (var i = 0; i < names.length; i++) {
+					if ($('input[type=checkbox]').eq(i).is(":checked")){
+						//checked parameters
+						params.players01.push(true);
+					}
+					else{
+						//unchecked parameters
+						params.players01.push(false);
+					}
+				}
+			}	
+			else{
+				//other stats 01
+				if ($('input[type=radio]').eq(2).is(":checked")){
+					//population
+					params.chartType = "population";
+					params.population = 1;
+				}
+				else{
+					//catch distribution
+					params.chartType = "distribution";
+					params.catch_dist = 1;
+				}
+			}
+		}
+		else{
+			if ($('#stats03').is(":checked")){
+				//players 02
+				params.chartType = "players";
+				params.players02 = [];
+
+				for (var i = 0; i < names.length; i++) {
+					if ($('input[type=checkbox]').eq(i + 5).is(":checked")){
+						//checked parameters
+						params.players02.push(true);
+					}
+					else{
+						//unchecked parameters
+						params.players02.push(false);
+					}
+				}
+			}
+			else{
+				//other stats 02
+				if ($('input[type=radio]').eq(6).is(":checked")){
+					//population 02
+					params.chartType = "population";
+					params.population = 2;
+				}
+				else{
+					//catch distribution 02
+					params.chartType = "distribution";
+					params.catch_dist = 2;
+				}
+			}
+		}
+		return params;
 	}
 
 	drawGraph = function(parameters, type, placeholder) {
@@ -172,6 +242,10 @@ $(document).ready(function(){
 		$('#another').css("visibility", "hidden");
 		$('#stats03').click(checkEd02);
 		$('#stats04').click(checkEd02);
+		$('#go02').click(function(){
+			window.param2 = getParameters(2);
+			console.log(window.param2);
+		});
 		$('#del').click(function(){
 			$('#graph02').remove();
 			$('#another').css("visibility", "visible");
@@ -182,5 +256,9 @@ $(document).ready(function(){
 
 	$('#stats01').click(checkEd01);
 	$('#stats02').click(checkEd01);
+	$('#go01').click(function(){
+			window.param1 = getParameters(1);
+			console.log(window.param1);
+		});
 	checkEd01();
 });
