@@ -46,6 +46,7 @@ $(document).ready(function(){
 				window.detpop.push(window.pop);
 
 				var pos = window.colors.indexOf(ucolor)
+				console.log(pos);
 				window.catches[pos].push(parseInt(window.catches[pos][window.catches[pos].length - 1])+parseInt(rcvdmessage));
 				break;
 
@@ -78,17 +79,17 @@ $(document).ready(function(){
 		if (group == 1){
 			if($('#stats01').is(":checked")){
 				//players 01
-				params.chartType = "players";
-				params.players01 = [];
+				params.chartType = "players01";
+				params.players = [];
 
 				for (var i = 0; i < names.length; i++) {
 					if ($('input[type=checkbox]').eq(i).is(":checked")){
 						//checked parameters
-						params.players01.push(true);
+						params.players.push(true);
 					}
 					else{
 						//unchecked parameters
-						params.players01.push(false);
+						params.players.push(false);
 					}
 				}
 			}	
@@ -109,17 +110,17 @@ $(document).ready(function(){
 		else{
 			if ($('#stats03').is(":checked")){
 				//players 02
-				params.chartType = "players";
-				params.players02 = [];
+				params.chartType = "players02";
+				params.players = [];
 
 				for (var i = 0; i < names.length; i++) {
 					if ($('input[type=checkbox]').eq(i + 5).is(":checked")){
 						//checked parameters
-						params.players02.push(true);
+						params.players.push(true);
 					}
 					else{
 						//unchecked parameters
-						params.players02.push(false);
+						params.players.push(false);
 					}
 				}
 			}
@@ -140,10 +141,12 @@ $(document).ready(function(){
 		return params;
 	}
 
-	drawGraph = function(parameters, type, placeholder) {
-		
+	drawGraph = function(parameters, placeholder) {
+		var type = parameters.chartType;
+		var graphData = new Array();
+
 		switch(type){
-			case "players":
+			case "players01":
 
 				var options = {
 					series: {
@@ -168,12 +171,26 @@ $(document).ready(function(){
 				};
 
 				for (var i = 0; i < window.catches.length; i++) {
-					window.catches[i] //pending
-				};
+					if (parameters.players[i]){
+						//create object with color and data
+						var player = {
+							label: window.names[i],
+							color: "#" + window.colors[i], 
+							data: new Array()
+						};
+						
+						for (var j = 0; j < window.catches[i].length; j++) {
+							player.data.push([j, window.catches[i][j]]);
+						}
+						//push object to graphData
+						graphData.push(player);
+					}
+				}
 			break;
 		}
 
-		$.plot(placeholder, data, options);
+		//$.plot(placeholder, graphData, options);
+		return graphData;
 	}
 	
 	checkEd01 = function(){
