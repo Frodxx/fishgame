@@ -6,6 +6,9 @@ $(document).ready(function(){
 	console.log(ws);
 	var conn = new WebSocket(ws);
 
+	$('.container').append('<section id="graph02" class="row graph-group"><h3>Graph Group 2</h3><div class="collapsible"><input id="stats03" checked="checked" class="ml" type="radio" name="statgroup02" value="stats03"> Players<div class="cb pt"></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 1" value="1"> <span>Dynamically Generated Player Name</span></label></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 2" value="2"> <span>Dynamically Generated Player Name</span></label></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 3" value="3"> <span>Dynamically Generated Player Name</span></label></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 4" value="4"> <span>Dynamically Generated Player Name</span></label></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 5" value="5"> <span>Dynamically Generated Player Name</span></label></div><div class="cb pt"></div><input id="stats04" class="ml" type="radio" name="statgroup02" value="stats04"> Other Stats<div class="cb pt"></div><div class="col-xs-12 col-sm-6"><label class="group04"><input class="group04" type="radio" name="charts" value="pop"> Population</label></div><div class="col-xs-12 col-sm-6"><label class="group04"><input class="group04" type="radio" name="charts" value="catches"> Catch Distribution</label></div><button type="button" id="go02" class="btn btn-success fr mar">Go!</button><button id="del" type="button" class="btn btn-danger fr mar">Delete</button></div><div class="cb pt"></div></section>');
+	$('#graph02').css("visibility", "hidden");
+
 	conn.onopen = function(e){
 		console.log("Connected.")
 		console.log(e);
@@ -93,14 +96,14 @@ $(document).ready(function(){
 					}
 				}
 			}	
-			else{
+			else if($('#stats02').is(":checked")){
 				//other stats 01
-				if ($('input[type=radio]').eq(2).is(":checked")){
+				if ($("input[value=pop]").filter(".group02").is(":checked")){
 					//population
 					params.chartType = "population";
 					params.population = 1;
 				}
-				else{
+				else if ($("input[value=catches]").filter(".group02").is(":checked")){
 					//catch distribution
 					params.chartType = "distribution";
 					params.catch_dist = 1;
@@ -114,7 +117,7 @@ $(document).ready(function(){
 				params.players = [];
 
 				for (var i = 0; i < names.length; i++) {
-					if ($('input[type=checkbox]').eq(i + 5).is(":checked")){
+					if ($("input[type=checkbox]").filter(".group03").eq(i).is(":checked")){
 						//checked parameters
 						params.players.push(true);
 					}
@@ -124,9 +127,9 @@ $(document).ready(function(){
 					}
 				}
 			}
-			else{
+			else if($("#stats04").is(":checked")){
 				//other stats 02
-				if ($('input[type=radio]').eq(6).is(":checked")){
+				if ($("input[value=pop]").filter(".group04").is(":checked")){
 					//population 02
 					params.chartType = "population";
 					params.population = 2;
@@ -139,58 +142,6 @@ $(document).ready(function(){
 			}
 		}
 		return params;
-	}
-
-	drawGraph = function(parameters, placeholder) {
-		var type = parameters.chartType;
-		var graphData = new Array();
-
-		switch(type){
-			case "players01":
-
-				var options = {
-					series: {
-						lines: {show: true}
-					},
-					xaxis: {
-						show: true,
-						ticks: 20,
-						tickDecimals: 0,
-						min: 0,
-						max: 20,
-						tickFormatter: function(val, ax){return ""}
-					},
-					yaxis: {
-						show: true,
-						ticks: 20,
-						tickDecimals: 0,
-						min: 0,
-						max: 20,
-						tickFormatter: function(val, ax){return ""}
-					}
-				};
-
-				for (var i = 0; i < window.catches.length; i++) {
-					if (parameters.players[i]){
-						//create object with color and data
-						var player = {
-							label: window.names[i],
-							color: "#" + window.colors[i], 
-							data: new Array()
-						};
-						
-						for (var j = 0; j < window.catches[i].length; j++) {
-							player.data.push([j, window.catches[i][j]]);
-						}
-						//push object to graphData
-						graphData.push(player);
-					}
-				}
-			break;
-		}
-
-		//$.plot(placeholder, graphData, options);
-		return graphData;
 	}
 	
 	checkEd01 = function(){
@@ -253,29 +204,137 @@ $(document).ready(function(){
 			}
 	}
 
-	$('#another').click(function(){$('.container').append('<section id="graph02" class="row graph-group"><h3>Graph Group 2</h3><div class="collapsible"><input id="stats03" checked="checked" class="ml" type="radio" name="statgroup02" value="stats03"> Players<div class="cb pt"></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 1" value="1"> <span>Dynamically Generated Player Name</span></label></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 2" value="2"> <span>Dynamically Generated Player Name</span></label></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 3" value="3"> <span>Dynamically Generated Player Name</span></label></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 4" value="4"> <span>Dynamically Generated Player Name</span></label></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 5" value="5"> <span>Dynamically Generated Player Name</span></label></div><div class="cb pt"></div><input id="stats04" class="ml" type="radio" name="statgroup02" value="stats04"> Other Stats<div class="cb pt"></div><div class="col-xs-12 col-sm-6"><label class="group04"><input class="group04" type="radio" name="charts" value="pop"> Population</label></div><div class="col-xs-12 col-sm-6"><label class="group04"><input class="group04" type="radio" name="charts" value="catches"> Catch Distribution</label></div><button type="button" id="go02" class="btn btn-success fr mar">Go!</button><button id="del" type="button" class="btn btn-danger fr mar">Delete</button></div><div class="cb pt"></div></section>');
+		drawGraph = function(parameters) {
+			$.getScript("jquery.flot.js", function(){
+			var type = parameters.chartType;
+			var graphData = new Array();
 
+			console.log(type);
+
+			switch(type){
+				case "players01":
+				case "players02":
+
+					var options = {
+						series: {
+							lines: {show: true}
+						},
+						xaxis: {
+							show: true,
+							ticks: 20,
+							tickDecimals: 0,
+							min: 0,
+							max: 20,
+							tickFormatter: function(val, ax){return ""}
+						},
+						yaxis: {
+							show: true,
+							ticks: 20,
+							tickDecimals: 0,
+							min: 0,
+							max: 20,
+							tickFormatter: function(val, ax){return ""}
+						}
+					};
+
+					for (var i = 0; i < window.catches.length; i++) {
+						if (parameters.players[i]){
+							//create object with color and data
+							var player = {
+								label: window.names[i],
+								color: "#" + window.colors[i], 
+								data: new Array()
+							};
+							
+							for (var j = 0; j < window.catches[i].length; j++) {
+								player.data.push([j, window.catches[i][j]]);
+							}
+							//push object to graphData
+							graphData.push(player);
+						}
+					}
+				break;
+
+				case "population":
+
+					var options = {
+						series: {
+							lines: {show: true}
+						},
+						xaxis: {
+							show: true,
+							ticks: 20,
+							tickDecimals: 0,
+							min: 0,
+							max: 20,
+							tickFormatter: function(val, ax){return ""}
+						},
+						yaxis: {
+							show: true,
+							ticks: 20,
+							tickDecimals: 0,
+							min: 0,
+							max: 20,
+							tickFormatter: function(val, ax){return ""}
+						}
+					};
+
+					var popular = {
+						label: "Population",
+						color: "red",
+						data: new Array()
+					};
+
+					for (var i = 0; i < window.detpop.length; i++) {
+						popular.data.push([i, window.detpop[i]]);
+					};
+					graphData.push(popular);
+				break;
+			}
+
+			if (type = "players01"){
+				//div01
+				placeholder = $("#graph01");
+			}
+			else{
+				//div02
+				placeholder = $("#graph02");
+			}
+
+			placeholder.css({"width" : "960px", "height": "350px"});
+			$.plot(placeholder, graphData, options);
+		});
+	}
+
+	$('#another').click(function(){
 	
 		$('#another').css("visibility", "hidden");
+		$('#graph02').css("visibility", "visible");
 		$('#stats03').click(checkEd02);
 		$('#stats04').click(checkEd02);
 		$('#go02').click(function(){
 			window.param2 = getParameters(2);
 			console.log(window.param2);
 		});
+
 		$('#del').click(function(){
-			$('#graph02').remove();
+			$('#graph02').css("visibility", "hidden");
 			$('#another').css("visibility", "visible");
 		});
+
 		renameLabels(2);
-		checkEd02();		
+		checkEd02();
+			$('#go02').click(function(){
+			window.param2 = getParameters(2);
+			drawGraph(window.param2);
+		});
 	});
 
 	$('#stats01').click(checkEd01);
 	$('#stats02').click(checkEd01);
 	$('#go01').click(function(){
 			window.param1 = getParameters(1);
-			console.log(window.param1);
+			drawGraph(window.param1);
 		});
 	checkEd01();
 });
