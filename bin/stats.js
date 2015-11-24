@@ -5,6 +5,7 @@ $(document).ready(function(){
 	var ws = 'ws://' + IP + ':' + port
 	console.log(ws);
 	var conn = new WebSocket(ws);
+	window.drawing = false;
 
 	$('.container').append('<section id="graph02" class="row graph-group"><h3>Graph Group 2</h3><div class="collapsible"><input id="stats03" checked="checked" class="ml" type="radio" name="statgroup02" value="stats03"> Players<div class="cb pt"></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 1" value="1"> <span>Dynamically Generated Player Name</span></label></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 2" value="2"> <span>Dynamically Generated Player Name</span></label></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 3" value="3"> <span>Dynamically Generated Player Name</span></label></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 4" value="4"> <span>Dynamically Generated Player Name</span></label></div><div class="col-xs-12 col-sm-6"><label class="group03"><input class="group03" type="checkbox" name="player 5" value="5"> <span>Dynamically Generated Player Name</span></label></div><div class="cb pt"></div><input id="stats04" class="ml" type="radio" name="statgroup02" value="stats04"> Other Stats<div class="cb pt"></div><div class="col-xs-12 col-sm-6"><label class="group04"><input class="group04" type="radio" name="charts" value="pop"> Population</label></div><div class="col-xs-12 col-sm-6"><label class="group04"><input class="group04" type="radio" name="charts" value="catches"> Catch Distribution</label></div><button type="button" id="go02" class="btn btn-success fr mar">Go!</button><button id="del" type="button" class="btn btn-danger fr mar">Delete</button></div><div class="cb pt"></div></section>');
 	$('#graph02').css("visibility", "hidden");
@@ -51,6 +52,15 @@ $(document).ready(function(){
 				var pos = window.colors.indexOf(ucolor)
 				console.log(pos);
 				window.catches[pos].push(parseInt(window.catches[pos][window.catches[pos].length - 1])+parseInt(rcvdmessage));
+				if (window.drawing){
+					if (window.groupy == 1){
+						drawGraph(window.param1);
+					}
+					else{
+						drawGraph(window.param2);
+					}
+					
+				}
 				break;
 
 			case 'repop':
@@ -80,6 +90,7 @@ $(document).ready(function(){
 		params = {};
 
 		if (group == 1){
+			window.groupy = 1;
 			if($('#stats01').is(":checked")){
 				//players 01
 				params.chartType = "players01";
@@ -111,6 +122,7 @@ $(document).ready(function(){
 			}
 		}
 		else{
+			window.groupy = 2;
 			if ($('#stats03').is(":checked")){
 				//players 02
 				params.chartType = "players02";
@@ -313,6 +325,7 @@ $(document).ready(function(){
 		$('#stats03').click(checkEd02);
 		$('#stats04').click(checkEd02);
 		$('#go02').click(function(){
+			window.drawing = true;
 			window.param2 = getParameters(2);
 			console.log(window.param2);
 		});
@@ -333,6 +346,7 @@ $(document).ready(function(){
 	$('#stats01').click(checkEd01);
 	$('#stats02').click(checkEd01);
 	$('#go01').click(function(){
+			window.drawing = true;
 			window.param1 = getParameters(1);
 			drawGraph(window.param1);
 		});
