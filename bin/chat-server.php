@@ -5,7 +5,7 @@ use Ratchet\WebSocket\WsServer;
 use Ratchet\Http\OriginCheck;
 use MyApp\Server;
 
-$myIP = '10.12.129.75'; //Change to match your server IP address
+$myIP = '192.168.1.79'; //Change to match your server IP address
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 

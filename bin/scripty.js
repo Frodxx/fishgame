@@ -1,7 +1,7 @@
 //jquery
 
 $(document).ready(function(){
-			var IP = '10.12.129.75';
+			var IP = '192.168.1.79';
 			var port = '8080';
 			var ws = 'ws://' + IP + ':' + port
 			console.log(ws);
@@ -37,6 +37,10 @@ $(document).ready(function(){
 				console.log(msg); //debug
 
 				switch(msgtype) {
+
+					case 'token':
+						conn.send(JSON.stringify({type: "token", im: "player"}));
+						break;
 
 					case 'system':
 						if (window.playing == false){
