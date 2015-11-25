@@ -1,7 +1,7 @@
 //jquery
 
 $(document).ready(function(){
-			var IP = '192.168.1.79';
+			var IP = '10.12.129.75';
 			var port = '8080';
 			var ws = 'ws://' + IP + ':' + port
 			console.log(ws);

@@ -1,6 +1,6 @@
 $(document).ready(function(){
 
-	var IP = '192.168.1.79';
+	var IP = '10.12.129.75';
 	var port = '8080';
 	var ws = 'ws://' + IP + ':' + port
 	console.log(ws);
@@ -81,15 +81,15 @@ $(document).ready(function(){
 				var msg = {type: 'statInit'};
 				conn.send(JSON.stringify(msg));
 				window.playing = true;
-				if (window.drawing){
-					if (window.groupy01){
-						drawGraph(window.param1);
-					}
-					if (window.groupy02){
-						drawGraph(window.param2);
-					}
+				// if (window.drawing){
+				// 	if (window.groupy01){
+				// 		drawGraph(window.param1);
+				// 	}
+				// 	if (window.groupy02){
+				// 		drawGraph(window.param2);
+				// 	}
 					
-				}
+				// }
 				break;
 
 			case 'join':

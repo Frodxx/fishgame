@@ -267,6 +267,9 @@ class Server implements MessageComponentInterface {
 					if (sizeof($client->my_catch) != 0) {
 						$catches[] = $client->my_catch;	
 					}
+					else{
+						$catches[] = 0;	
+					}
 				}
 
 				$new_catches = array();
