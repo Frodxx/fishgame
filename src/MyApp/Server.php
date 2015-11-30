@@ -51,13 +51,14 @@ define("REGEN", floatval($prefs['regen']));
 define("SURVIVAL", intval($prefs['survival']));
 
 echo "Server started. Preferences are as follows:\n";
-var_dump($prefs);
+print_r($prefs);
 
 class Server implements MessageComponentInterface {
 	
 	protected $clients;/*!<	A SplObjectStorage that holds connection objects (sockets). */
 	protected $listeners; /*!< Helper variable to storage number of listening clients when the game is running */
-	protected $pop;
+	protected $pop = MAXPOP;
+	protected $detpop = [MAXPOP];
 	protected $max_rounds = 0;
 	protected $current_round = 0;
 	// protected $survival = $prefs['survival'];
@@ -66,7 +67,8 @@ class Server implements MessageComponentInterface {
 	protected $used_colors = [];
 
 	public function __construct() {
-		$this->clients = new \SplObjectStorage;
+		$this->players = new \SplObjectStorage;
+		$this->spectators = new \SplObjectStorage;
 	}
 
 	public function onOpen(ConnectionInterface $conn) {
@@ -79,29 +81,16 @@ class Server implements MessageComponentInterface {
 		*/
 
 		echo "Incoming connection: ({$conn->resourceId})\n";
+		//add it to queue (spectators)
+		//ask for token
+		//if player do this
+		//if not, remain a spectator
 
-		if (count($this->clients) < MAXCLIENTS) {
-			$this->clients->attach($conn);
-			echo "Connection successfully established. Resource ID: ({$conn->resourceId})\n";
-			$this->assignName($conn);
-			$this->tellJoin($conn);
-			$this->whoIsOnline($conn);
-
-			$conn->is_ready = false; // Is the client ready to play?
-			$conn->is_listening = false; //Is the client playing?
-			$conn->my_turn = false; // Is it their turn now?
-			$conn->my_moves = 0; // how many times have I moved idk why
-			$conn->tech = 0; // Preferred fishing technique. (0-3)
-			$conn->my_catch = array(); // This array contains the score of this client
-		}
-
-		else{
-			echo "Room is full. Closing connection.\n";
-			$jason = ["type" => "system", "message" => "Lo siento, la sala está llena. ¡Adiós!", "name" => "System", "color" => "999999"];
-
-			$conn->send(json_encode($jason));
-			$this->onClose($conn);
-		}
+		echo "Connection {$conn->resourceId} is spectating...\n";
+		$this->spectators->attach($conn);
+		$jason = ["type" => "token"];
+		$msg = json_encode($jason);
+		$conn->send($msg);
 	}
 
 	public function broadcast($msg){
@@ -111,9 +100,13 @@ class Server implements MessageComponentInterface {
 		@param string	$msg
 		A JSON string to send to all connected clients.
 		*/
-		foreach ($this->clients as $client) {
+		foreach ($this->players as $client) {
 				$client->send($msg);
 			}
+
+		foreach ($this->spectators as $spectator) {
+			$spectator->send($msg);
+		}
 	}
 
 
@@ -132,21 +125,53 @@ class Server implements MessageComponentInterface {
 
 		//Prevent HTML tags from being sent to other clients
 
+		//print_r($usermsg); debug
+
 		if (isset($usermsg["message"])) {
 			$forbidden = ['/</u', '/>/u'];
 			$escapes = ['&lt;', '&gt;'];
 			$nohtml = preg_replace($forbidden, $escapes, $usermsg["message"]);
 		}
 
-		$numRecv = count($this->clients) -1;
+		$numRecv = count($this->players) -1;
 
 		switch ($usermsg["type"]) {
 
-			default:
+			case 'text':
 				echo sprintf('Connection %d sending message "%s" to %d other connection%s' . "\n", $from->resourceId, $nohtml, $numRecv, $numRecv == 1 ? '' : 's');
 				$jason = ["type" => "text","name" => $from->uname, "color" => $from->ucolor, "message" => $nohtml];
 				$msg = json_encode($jason);
 				$this->broadcast($msg);
+				break;
+
+			case 'token':
+				if ($usermsg["im"] == "player") {
+					echo "Connection {$from->resourceId} is a player\n";
+					//attach to playerlist
+					if (count($this->players) < MAXCLIENTS) {
+						$this->players->attach($from);
+						$this->spectators->detach($from);
+						echo "Connection {$from->resourceId} is now in player list\n";
+						$this->assignName($from);
+						$this->tellJoin($from);
+						$this->whoIsOnline($from);
+
+						$from->is_ready = false; // Is the client ready to play?
+						$from->is_listening = false; //Is the client playing?
+						$from->my_turn = false; // Is it their turn now?
+						$from->my_moves = 0; // how many times have I moved idk why
+						$from->tech = 0; // Preferred fishing technique. (0-3)
+						$from->my_catch = [0]; // This array contains the score of this client
+					}
+
+					else{
+						echo "Room is full. Kicking... \n";
+						$jason = ["type" => "system", "message" => "Sorry, room is full. Goodbye!", "name" => "System", "color" => "999999"];
+						$from->send(json_encode($jason));
+						$this->onClose($from);
+					}
+
+				}
 				break;
 
 			case "ready":
@@ -175,7 +200,7 @@ class Server implements MessageComponentInterface {
 					$from->is_listening = true;
 				}
 
-				foreach ($this->clients as $client) {
+				foreach ($this->players as $client) {
 					if ($client->is_listening) {
 						$this->listeners += 1;
 					}
@@ -196,6 +221,7 @@ class Server implements MessageComponentInterface {
 				echo "-----------------\n";
 
 				$this->pop = $this->pop - intval($nohtml);
+				$this->detpop[] = $this->pop;
 
 				$jason = ["type" => "catch", "name" => $from->uname, "color" => $from->ucolor, "message" => $nohtml];
 				$msg = json_encode($jason);
@@ -208,7 +234,7 @@ class Server implements MessageComponentInterface {
 				else{
 					$roundy = array();
 
-					foreach ($this->clients as $client) {
+					foreach ($this->players as $client) {
 						$roundy[] = $client->my_moves;
 					}
 
@@ -220,6 +246,54 @@ class Server implements MessageComponentInterface {
 						$this->assignTurn();
 					}
 				}
+				break;
+
+			case 'statInit':
+
+				/*if (isset($from->ucolor)) {
+					$this->colors[] = $from->ucolor;
+				}
+
+				$this->players->detach($from);
+				$this->tellPart($from);
+
+				$this->spectators->attach($from);*/
+				$catches = array();
+
+				foreach ($this->players as $client) {
+					$names[] = $client->uname;
+					$colors[] = $client->ucolor;
+
+					if (sizeof($client->my_catch) != 0) {
+						$catches[] = $client->my_catch;	
+					}
+					else{
+						$catches[] = 0;	
+					}
+				}
+
+				$new_catches = array();
+				for ($j=0; $j < count($catches); $j++) {
+					$aux= [0];
+					for ($i=1; $i < count($catches[$j]); $i++) {
+						$aux[] = $aux[$i-1] + $catches[$j][$i];
+					}
+					$new_catches[] = $aux;
+				}
+
+				$jason = ["type" => "statInit", "names" => $names, "colors" => $colors, "pop" => $this->pop, "detpop" => $this->detpop, "catches" =>$new_catches];
+				$msg = json_encode($jason);
+				$from->send($msg);
+
+				echo "Sent initial values to spectators\n";
+				break;
+
+			case 'howmany':
+				$howmany = count($this->players);
+				$jason = ["type" => "thismany", "howmany" => $howmany];
+				$msg = json_encode($jason);
+				$from->send($msg);
+
 				break;
 
 		}
@@ -246,7 +320,7 @@ class Server implements MessageComponentInterface {
 		}
 		$conn->close();
 
-		$this->clients->detach($conn);
+		$this->players->detach($conn);
 		$this->tellPart($conn);
 	}
 
@@ -279,7 +353,7 @@ class Server implements MessageComponentInterface {
 		*/
 		if ($this->listeners == MAXCLIENTS) {
 
-			foreach ($this->clients as $client) {
+			foreach ($this->players as $client) {
 				$client->my_turn = false; //set everybody's turn as false
 			}
 
@@ -287,7 +361,7 @@ class Server implements MessageComponentInterface {
 			echo "-----------------\n";
 			echo sprintf("Player " . $id_of_next . " is now playing \n");
 
-			foreach ($this->clients as $client) {
+			foreach ($this->players as $client) {
 				//echo "I'm at client number " . $client->resourceId . "\n";
 				if ($id_of_next == $client->resourceId) {
 					//echo "This player should move now!\n";
@@ -310,7 +384,7 @@ class Server implements MessageComponentInterface {
 		The connection ID whose turn is ahead.
 		*/
 		$players = array();
-		foreach ($this->clients as $client) {
+		foreach ($this->players as $client) {
 			//check how many times a client has played
 			$players[$client->resourceId] = $client->my_moves;
 		}
@@ -332,7 +406,7 @@ class Server implements MessageComponentInterface {
 		$names = [];
 		$colors = [];
 
-		foreach ($this->clients as $client) {
+		foreach ($this->players as $client) {
 			$names[] = $client->uname;
 			$colors[] = $client->ucolor;
 		}
@@ -410,7 +484,7 @@ class Server implements MessageComponentInterface {
 		$rdy_users = array();
 		$all_ready = false;
 
-		foreach ($this->clients as $client) {
+		foreach ($this->players as $client) {
 			if ($client->is_ready) {
 				array_push($rdy_users, $client->is_ready);
 			}
@@ -435,7 +509,7 @@ class Server implements MessageComponentInterface {
 		Useful if you need to restart the game with
 		the same clients connected.
 		*/
-		foreach ($this->clients as $client) {
+		foreach ($this->players as $client) {
 			$client->is_ready = false;
 			$client->is_listening = false;
 			$client->my_turn = false;
@@ -443,6 +517,8 @@ class Server implements MessageComponentInterface {
 			unset($client->my_catch);
 			$client->my_catch = array();
 		}
+		$this->pop = MAXPOP;
+		$this->detpop = [];
 	}
 
 	public function endRound(){
@@ -482,7 +558,7 @@ class Server implements MessageComponentInterface {
 		*/
 		$catches = array();
 		$names = array();
-		foreach ($this->clients as $client) {
+		foreach ($this->players as $client) {
 			// if(isset($client->my_catch)){
 			// 	var_dump($client->my_catch);
 			// }

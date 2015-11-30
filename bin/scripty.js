@@ -38,6 +38,10 @@ $(document).ready(function(){
 
 				switch(msgtype) {
 
+					case 'token':
+						conn.send(JSON.stringify({type: "token", im: "player"}));
+						break;
+
 					case 'system':
 						if (window.playing == false){
 							$('#chatbox').append("<div>"+timestamp()+'<span style="font-weight: bold;color:#' +ucolor+'">'+uname + "</span>: "+rcvdmessage+"</div>");
