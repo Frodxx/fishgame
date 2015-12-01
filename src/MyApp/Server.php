@@ -2,11 +2,9 @@
 
 /*!
 @mainpage Fishgame
-@author Xavier Sánchez Díaz <sax@itesm.mx>
-@version 0.1a
-@date April, 2015
-@bug Colors and Names may not be unique.
-@bug Turns are not reassigned if a payer disconnects
+@author Xavier Sánchez Díaz <xavier.sanchezdz@gmail.com>
+@version 0.5b
+@date December, 2015
 */
 
 /*!
@@ -14,7 +12,8 @@
 This is the main Server application. It includes many chat methods
 such as part/join events, command-handling functions and message broadcasting.
 It also includes the game itself.
-@brief Server application, including various message-handling methods
+@brief Server application, including various message-handling methods.
+@todo add spectator case to @ref onClose.
 */
 
 namespace MyApp;
@@ -55,16 +54,16 @@ print_r($prefs);
 
 class Server implements MessageComponentInterface {
 	
-	protected $clients;/*!<	A SplObjectStorage that holds connection objects (sockets). */
-	protected $listeners; /*!< Helper variable to storage number of listening clients when the game is running */
-	protected $pop = MAXPOP;
-	protected $detpop = [MAXPOP];
-	protected $max_rounds = 0;
-	protected $current_round = 0;
+	protected $listeners; /*!< Helper variable to storage number of listening clients when the game is running. */
+	protected $pop = MAXPOP; /*!< Current population in the lake.*/
+	protected $detpop = [MAXPOP]; /*!< Detailed population array containing population per day (after catches or regen). */
+	protected $max_rounds = 0; /*!< Maximum number of rounds in the game if @p SURVIVAL mode is disabled. */
+	protected $current_round = 0; /*!< Current round in the game. Helper variable to trigger @ref endGame endGame. */
 	// protected $survival = $prefs['survival'];
 	protected $names = ["Dasyatis", "Pterois", "Xiphias", "Carassius", "Betta", "Poecilia", "Makaira", "Thunnus", "Carcharodon", "Octopus", "Arothron", "Pygoplites", "Ictalurus", "Callinectes", "Panulirus", "Palaemon", "Pleioptygma", "Crassostrea", "Loligo", "Melanocetus", "Sepiella", "Nautilus", "Chrysaora", "Squilla"];
-	protected $colors = ['007AFF','FF7000','15E25F','CFC700','CF1100','CF00BE','B25C71'];
-	protected $used_colors = [];
+	/*!< List of sea animals geni, used to assign as a nickname to connected players. */
+	protected $colors = ['007AFF','FF7000','15E25F','CFC700','CF1100','CF00BE','B25C71']; /*!< List of hex colors, used to assign as user color to connected players. */
+	protected $used_colors = []; /*!< Helper variable to storage used colors in order to make a Colored Genus a unique colored nickname. */
 
 	public function __construct() {
 		$this->players = new \SplObjectStorage;
@@ -123,14 +122,12 @@ class Server implements MessageComponentInterface {
 
 		$usermsg = json_decode($msg, true);
 
-		//Prevent HTML tags from being sent to other clients
-
 		//print_r($usermsg); debug
 
 		if (isset($usermsg["message"])) {
 			$forbidden = ['/</u', '/>/u'];
 			$escapes = ['&lt;', '&gt;'];
-			$nohtml = preg_replace($forbidden, $escapes, $usermsg["message"]);
+			$nohtml = preg_replace($forbidden, $escapes, $usermsg["message"]); //Prevent HTML tags from being sent to other clients
 		}
 
 		$numRecv = count($this->players) -1;
@@ -160,7 +157,7 @@ class Server implements MessageComponentInterface {
 						$from->is_listening = false; //Is the client playing?
 						$from->my_turn = false; // Is it their turn now?
 						$from->my_moves = 0; // how many times have I moved idk why
-						$from->tech = 0; // Preferred fishing technique. (0-3)
+						//$from->tech = 0; // Preferred fishing technique. (0-3)
 						$from->my_catch = [0]; // This array contains the score of this client
 					}
 
@@ -304,12 +301,13 @@ class Server implements MessageComponentInterface {
 	public function onClose(ConnectionInterface $conn) {
 		/*!
 		Triggers when the connection is closed.
-		Detaches @p $conn from @ref $clients and broadcasts a @ref tellPart "part" event.
+		Detaches @p $conn from @p $this->players and broadcasts a @ref tellPart "part" event.
 
 		@param ConnectionInterface $conn
 		This is the socket (client) who is leaving the application.
 		*/
 		echo "Connection {$conn->resourceId} has disconnected\n";
+		//if is player, do this:
 		if (isset($conn->is_listening)){
 			if ($conn->is_listening){
 				$this->listeners = $this->listeners - 1;
@@ -322,6 +320,7 @@ class Server implements MessageComponentInterface {
 
 		$this->players->detach($conn);
 		$this->tellPart($conn);
+		//if not, do this:
 	}
 
 
@@ -349,7 +348,7 @@ class Server implements MessageComponentInterface {
 
 	public function assignTurn(){
 		/*!
-		Assigns turn to who is next.
+		Assigns turn to whoever is next.
 		*/
 		if ($this->listeners == MAXCLIENTS) {
 
