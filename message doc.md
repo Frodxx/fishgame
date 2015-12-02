@@ -7,52 +7,62 @@ Message structures and types
 All data sent between clients and server (direction doesn't matter) is a **message**.
 Each message is transferred as a [JSON] string, which is then converted into a human-readable format on each client.
 
-All actions are reflected in each host as special messages. Each message has a different structure. Available structures will vary depending if server-side or client-side, and will be described below.
+All actions are reflected in each host as special messages. Each message has a different structure. Available structures will vary depending if the message is sent server-side or client-side, and will be described below.
 
 
 ##Message Structure
-Messages contain the following JSON structure:
+Messages *usually* contain the following JSON structure:
 
 - **type**: The type of message. Used to trigger different functions on the server.
 - **name**: The readable name assigned for a user. Used on client-side operations.
 - **color**: The color (hex value) assigned for a user. Used on client-side operations.
-- **message**: The text from a client input. Used for chat mainly client-side.
+- **message**: The content of the message. Usually it contains the text from a client input. Used for chat mainly client-side.
 
 
-##Message Types
+##Message Type
 
-The "type" name is checked by clients and the server in order to operate. There are X different "type" values.
+The "type" name is checked by clients and the server in order to operate. There are 18 different "type" values.
 
-- **action**: triggers action messages, such as "/me goes to the Beach" in chat.
-	- Used in [onMessage] method.
-- **catch**: used to tell players a specific client has caught some fish. This message type is only used in server->client direction.
-	-Used in [onMessage] method.
-- **end**: used to tell the server a client has finished their turn. This message type is only used in client->server direction.
-- **handshake**: used to assign name and color to a client on new connection.
-	- Used in [assignName] method.
-- **join**: triggers join notices on clients.
-	- Used in [tellJoin] method.
-- **listen**: triggers UI blocking on clients when the game starts. This message type is only used in client->server direction.
-	- Used in [onMessage] method.
-- **part**: triggers part notices on clients.
-	- Used in [tellPart] method.
+- **action**: triggers action messages, such as */me goes to the Beach* in chat.
+	- Used in `onMessage` method.
+- **catch**: used to tell players a specific client has caught some fish. Only used in server->client direction.
+	-Used in `onMessage` method.
+- **end**: used to tell the server a client has finished their turn. Only used in client->server direction.
+- **handshake**: used to assign name and color to a client on new connection. Only used in server->client direction.
+	- Used in `assignName` method.
+- **join**: triggers join notices on clients. Only used in server->client direction.
+	- Used in `tellJoin` method.
+- **listen**: triggers UI blocking on clients when the game starts. Only used in client->server direction.
+	- Used in `onMessage` method.
+- **over**: triggers the end of the game. Only used in server->client direction.
+	- Used in `endGame` method.
+- **part**: triggers part notices on clients. Only used in server->client direction.
+	- Used in `tellPart` method.
 - **ready**: sets clients' ready status as true.
-	- Used in [setReady] method.
-- **start**: starts the game on each client.
-	- Used in [play] method.
-- **system**: system messages that are generally sent to one client, like notices or announcements.
-	- Used in [onOpen] and [play] methods.
+	- Used in `setReady` method.
+- **repop**: used at the end of a round to regenerate population. Only used in server->client direction.
+	- Used in `endRound` method.
+- **start**: starts the game on each client. Only used in server->client direction.
+	- Used in `play` method.
+- **statInit**: used to retrieve current information of the game to inform spectators.
+	- Used in `onMessage` method.
+- **system**: system messages that are generally sent to one client, like notices or announcements. Only used in server->client direction.
+	- Used in `onOpen` and `play` methods.
 - **text**: the standard type of message, when a client sends text in chat.
-	- Used in [onMessage] method.
-- **turn**: triggers UI unblocking on clients when it's their turn. This message type is only used in server->client direction.
-	- Used in [onMessage] method.
+	- Used in `onMessage` method.
+- **token**: checks type of connection (Player or Spectator).
+	- Used in `onMessage` method.
+- **turn**: triggers UI unblocking on clients when it's their turn. Only used in server->client direction.
+	- Used in `onMessage` method.
 - **unready**: sets clients' ready status as false.
-	- Used in [setReady] method.
+	- Used in `setReady` method.
+- **users**: retrieves players on the room.
+	- Used in `onMessage` method.
 
 
 ##Message Name
 
-The message "name" contains the server-assigned name (as a string) for a given user. Names are randomly selected from a pre-defined list which contains multiple geni from animals inhabitating the sea.
+The message "name" contains the server-assigned name (as a string) for a given user. Names are randomly selected from a pre-defined list which contains multiple geni from animals inhabiting the sea.
 
 Possible names are the following:
 
@@ -65,23 +75,42 @@ The message "color" name contains the server-assigned color in hex value (as a s
 
 Possible colors (hex values) are the following:
 
-007AFF,FF7000,FF7000,15E25F,CFC700,CFC700,CF1100,CF00BE and F00.
+007AFF, FF7000, 15E25F, CFC700, CF1100, CF00BE, B25C71.
 
 
 ##Message content ("message")
 
-The "message" name is used to store plain text to be deilvered to chat. This includes both client and server messages. Common uses of the "message" name are:
+The "message" name is used to store plain text to be delivered to chat. This includes both client and server messages. Common uses of the "message" name are:
 - Chat text like *Octopus: Hey buddy, I think you've got the wrong door....*
 - Chat actions like *Nick goes to the beach.*
 - Server messages like *Room is full!* or *Game starting...*.
 
 Although HTML tags are allowed in the client's input, the server will always send HTML as plain text, so `<bold>aa</bold>` will look exactly as is.
 
+##Special Cases
+
+There are some special cases in which the message structure is different:
+
+###Special Structures
+
+- **im**: used in client->server direction to set the connection type. Values can be either `player` or `spectator`.
+- **catches**: used in server->client direction to notify clients the detailed (cumulative) catch of each player.
+	- Used in `OnMessage` method.
+	- Used in `endGame` method.
+- **colors**: used in server->client direction to notify clients the colors of the connected players.
+	- Used in `OnMessage` method.
+	-	Used in `whoIsOnline` method.
+	- Used in `endGame` method.
+- **detpop**: used in server->client direction to notify spectators the cumulative population.
+	- Used in `OnMessage` method.
+- **names**: used in server->client direction to notify clients the names of the connected players.
+	- Used in `OnMessage` method.
+	-	Used in `whoIsOnline` method.
+	- Used in `endGame` method.
+- **pop**: used in server->client direction to notify spectators the actual population.
+	- Used in `OnMessage` method.
+
+###Special Types
+- **howmany**: **UNUSED** - used in client->server (specifically spectators->server) to ask how many players are connected.
+
 [json]: http://json.org/
-[onopen]: @ref MyApp::Server::onOpen
-[play]: @ref MyApp::Server::play
-[onmessage]: @ref MyApp::Server::onMessage
-[assignName]: @ref MyApp::Server::assignName
-[tellJoin]: @ref MyApp::Server::tellJoin
-[tellPart]: @ref MyApp::Server::tellPart
-[setReady]: @ref MyApp::Server::setReady
