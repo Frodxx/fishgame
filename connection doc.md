@@ -25,4 +25,4 @@ A `$conn` object has the following variables if connecting from a playing-client
 ###Game specific variables
 
 - `my_catch` - an array containing the overall catch for this connection. Initialized with *0* as a first element.
-	- This variable is set in [onMessage] method.
+	- This variable is set in `onMessage` method.

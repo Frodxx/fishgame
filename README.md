@@ -32,8 +32,7 @@ You can find detailed installation directions below.
 ### 1. Getting the Fish Game source ###
 
 1. Clone this repository or download via zip.
-2. Unzip contents inside the `www` folder in your **AMP** server. So you should end up with, let's say *wamp\www\fishgame* if using WAMP.
-3. Open a terminal (command line) and navigate to **The Fish Game** directory.
+2. Unzip contents inside the `www` folder in your **AMP** server. So you should end up with, let's say *wamp\www\fishgame* if using WAMP. Some AMP installations don't have a `www` folder. If so, look for `htdocs` instead.
 
 ### 2. Installing and setting-up Composer ###
 
@@ -57,7 +56,7 @@ You can find detailed installation directions below.
 
 ### 3. Installing Ratchet ###
 
-1. Go to your terminal (command line) and make sure you're in **The Fish Game** folder.
+1. Open a terminal (command line) and navigate to the **The Fish Game** folder.
 2. Install **[Ratchet](http://socketo.me/)** with `composer install` command.
 
 ### 4. Installing Flot ###
@@ -75,20 +74,20 @@ You can find detailed installation directions below.
 
 #### 5.1 CSS ####
 
-1. Navigate to *dist* folder, and then to *css* folder.
+1. Navigate to *dist* directory inside the unzipped **Hopscotch** folders, and then to *css* directory.
 2. Copy the `hopscotch.css` file.
 3. Navigate to *The Fish Game* directory, and then to the *bin* folder.
 4. Paste `hopscotch.css` you copied earlier.
 
 #### 5.2 JS ####
 
-1. Navigate to *dist* folder, and then to *js* folder.
+1. Navigate to *dist* folder inside the unzipped **Hopscotch** folders, and then to *js* folder.
 2. Copy the `hopscotch.js` file.
 3. Navigate to *The Fish Game* directory, and then to the *bin* folder.
 4. Paste `hopscotch.js` you copied earlier.
 
 #### 5.3 Images ####
-1. Navigate to *dist* folder, and then to *img* folder.
+1. Navigate to *dist* folder inside the unzipped **Hopscotch** folders, and then to *img* folder.
 2. Copy **both** `sprite-green` and `sprite-orange` files.
 3. Navigate to *The Fish Game* directory, and then to the *img* folder.
 4. Paste **both** `sprite-green` and `sprite-orange` you copied earlier.
@@ -101,17 +100,15 @@ Before running the game, you'll need to adjust some settings, both on client and
 
 ### Server first-time setup ###
 
-1. Open a terminal (command line) and navigate to **The Fish Game** folder.
-2. Go to the *bin* folder and open the `chat-server.php` file with a text editor.
-3. Go to line **8**, and change the `$myIP` variable. It should contain the IP address of your server as a string, so make sure it is wrapped around quotation marks ('my.ip.is.this' or "my.ip.is.this").
-4. Save changes and exit the editor.
+1. In **The Fish Game** directory, go to the *bin* folder and open the `chat-server.php` file with a text editor (Notepad, TextEdit, vim, ...)
+2. Go to line **8**, and change the `$myIP` variable. It should contain the IP address of your server as a string, so make sure it is wrapped around quotation marks ('my.ip.is.this' or "my.ip.is.this").
+3. Save changes and exit the editor.
 
 ### Client first-time setup ###
 
-1. Open a terminal (command line) and navigate to **The Fish Game** folder.
-2. Go to the *bin* folder and open the `scripty.js` file with a text editor.
-3. Go to line **4**, and change the `IP` variable. It should contain the IP address of your server as a string, so make sure it is wrapped around quotation marks ('my.ip.is.this') or ("my.ip.is.this").
-4. Save changes and exit the editor.
+1. In **The Fish Game** directory, go to the *bin* folder and open the `scripty.js` file with a text editor.
+2. Go to line **4**, and change the `IP` variable. It should contain the IP address of your server as a string, so make sure it is wrapped around quotation marks ('my.ip.is.this') or ("my.ip.is.this").
+3. Save changes and exit the editor.
 
 ## Playing ##
 
@@ -126,15 +123,14 @@ The server should be up and running now.
 
 ### Accesing the game as a client ###
 
-1. Open your browser and navigate to the following URL: `localhost\fishgame\bin\room.html`
+1. Open your browser and access the following URL: `localhost\fishgame\bin\room.html`
 
 That's all :)
 
 ### Adjusting game settings ###
 
-1. Open a terminal (command line) and navigate to **The Fish Game** folder.
-2. Go to the *src* folder and open the `preferences.ini` file with a text editor.
-3. Adjust the settings as you like. When you're done, save changes and exit the editor.
+1. In **The Fish Game** directory, go to the *src* folder and open the `preferences.ini` file with a text editor.
+2. Adjust the settings as you like. When you're done, save changes and exit the editor.
 
 ## License ##
 
