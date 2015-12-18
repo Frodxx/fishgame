@@ -7,15 +7,6 @@
 @date December, 2015
 */
 
-/*!
-@class MyApp::Server
-This is the main Server application. It includes many chat methods
-such as part/join events, command-handling functions and message broadcasting.
-It also includes the game itself.
-@brief Server application, including various message-handling methods.
-@todo add spectator case to @ref onClose.
-*/
-
 namespace MyApp;
 
 use Ratchet\MessageComponentInterface;
@@ -52,6 +43,14 @@ define("SURVIVAL", intval($prefs['survival']));
 echo "Server started. Preferences are as follows:\n";
 print_r($prefs);
 
+/*!
+	This is the main Server application. It includes many chat methods
+	such as part/join events, command-handling functions and message broadcasting.
+	It also includes the game itself.
+	@brief Server application, including various message-handling methods.
+	@todo add spectator case to @ref onClose.
+	*/
+
 class Server implements MessageComponentInterface {
 	
 	protected $listeners; /*!< Helper variable to storage number of listening clients when the game is running. */
@@ -85,6 +84,7 @@ class Server implements MessageComponentInterface {
 		$jason = ["type" => "token"];
 		$msg = json_encode($jason);
 		$conn->send($msg);
+		$conn->player = false;
 	}
 
 	public function broadcast($msg){
@@ -103,6 +103,24 @@ class Server implements MessageComponentInterface {
 		}
 	}
 
+	public function removeHTML($msg){
+		/*!
+		Helper function to removeHTML tags from a message
+		in order to prevent malicious code in client.
+
+		@param $msg
+		This is the message which will be treated.
+		
+		@retval $nohtml
+		The new message without HTML characters.
+		*/
+
+		$forbidden = ['/</u', '/>/u'];
+		$escapes = ['&lt;', '&gt;'];
+		$nohtml = preg_replace($forbidden, $escapes, $msg); //Prevent HTML tags from being sent to other clients
+
+		return $nohtml;
+	}
 
 	public function onMessage(ConnectionInterface $from, $msg) {
 		/*!
@@ -114,25 +132,19 @@ class Server implements MessageComponentInterface {
 		@param string $msg
 		A JSON string sent by the client.
 		*/
-
 		$usermsg = json_decode($msg, true);
-
 		if (isset($usermsg["message"])) {
-			$forbidden = ['/</u', '/>/u'];
-			$escapes = ['&lt;', '&gt;'];
-			$nohtml = preg_replace($forbidden, $escapes, $usermsg["message"]); //Prevent HTML tags from being sent to other clients
+			$actual_msg = $this->removeHTML($usermsg["message"]);
 		}
-
-		$numRecv = count($this->players) -1;
 
 		switch ($usermsg["type"]) {
 
 			case 'text':
-				$this->text($from, $nohtml);
+				$this->text($from, $actual_msg, "text");
 				break;
 
 			case 'token':
-				$this->token($from, $usermsg);
+				$this->token($from, $usermsg["im"]);
 				break;
 
 			case "ready":
@@ -140,10 +152,7 @@ class Server implements MessageComponentInterface {
 				break;
 
 			case "action":
-				echo sprintf('Connection %d sending action "%s" to %d other connection%s' . "\n", $from->resourceId, $nohtml, $numRecv, $numRecv == 1 ? '' : 's');
-				$jason = ["type" => "action","name" => $from->uname, "color" => $from->ucolor, "message" => $nohtml];
-				$msg = json_encode($jason);
-				$this->broadcast($msg);
+				$this->text($from, $actual_msg, "action");
 				break;
 
 			case "users":
@@ -155,7 +164,7 @@ class Server implements MessageComponentInterface {
 				break;
 
 			case "end":
-				$this->finish($from, $nohtml);
+				$this->finish($from, $actual_msg);
 				break;
 
 			case 'statInit':
@@ -177,19 +186,22 @@ class Server implements MessageComponentInterface {
 		*/
 		echo "Connection {$conn->resourceId} has disconnected\n";
 		//if is player, do this:
-		if (isset($conn->is_listening)){
-			if ($conn->is_listening){
-				$this->listeners = $this->listeners - 1;
-			}
+		if ($conn->player) {
+			if (isset($conn->is_listening)){
+				if ($conn->is_listening){
+					$this->listeners = $this->listeners - 1;
+				}
 		}
 		if (isset($conn->ucolor)) {
 			$this->colors[] = $conn->ucolor;
 		}
 		$conn->close();
-
 		$this->players->detach($conn);
 		$this->tellPart($conn);
-		//if not, do this:
+		}
+		else{
+			$this->spectators->detach($conn);
+		}
 	}
 
 
@@ -197,7 +209,7 @@ class Server implements MessageComponentInterface {
 		/*!
 		Encodes (JSON) and sends @p $msg to @p $receiver.
 
-		@param ConnectionInterface $from
+		@param ConnectionInterface $receiver
 		This is the socket who sent @p $msg.
 		@param $msg
 		A string sent by the client. 
@@ -290,23 +302,49 @@ class Server implements MessageComponentInterface {
 		foreach ($this->players as $client) {
 			$roundy[] = $client->my_moves;
 		}
-		$ended = array_sum($roundy) % MAXCLIENTS == 0;
+		if (array_sum($roundy) % MAXCLIENTS == 0) {
+			$ended = true;
+		}
+		else{
+			$ended = false;
+		}
 
 		return $ended;
 	}
 
 
-	public function text(ConnectionInterface $from, $msg) {
+	public function text(ConnectionInterface $from, $msg, $type) {
+		/*!
+		Broadcasts @p $msg from @p $from as @c text or 
+		@c action depending its @p $type.
+
+		@param ConnectionInterface $from
+		This is the client (socket) who sent the message.
+		@param $msg
+		The actual message sent by @p $from.
+		@param $type
+		Type of message, could be either @c text or @c action.
+		*/
 
 		$numRecv = count($this->players) -1;
-		echo sprintf('Connection %d sending message "%s" to %d other connection%s' . "\n", $from->resourceId, $msg, $numRecv, $numRecv == 1 ? '' : 's');
-		$message = ["type" => "text","name" => $from->uname, "color" => $from->ucolor, "message" => $msg];
-		$this->encodeAndBroadcast($msg, $from);
+		echo sprintf('Connection %d sending message "%s" as %s to %d other connection%s' . "\n", $from->resourceId, $msg, $type, $numRecv, $numRecv == 1 ? '' : 's');
+		$message = ["type" => $type,"name" => $from->uname, "color" => $from->ucolor, "message" => $msg];
+		$this->encodeAndBroadcast($message, $from);
 	}
 
 
 	public function token(ConnectionInterface $conn, $usermsg){
-		if ($usermsg["im"] == "player") {
+		/*!
+		Triggers after @ref onOpen to handle clients according their type,
+		and initializes game variables on @c player clients.
+
+		@param ConnectionInterface $conn
+		This is the client (socket) doing handshake.
+		@param $usermsg
+		Token message sent by @p $conn.
+		*/
+
+		if ($usermsg == "player") {
 			echo "Connection {$conn->resourceId} is a player\n";
 			//attach to playerlist
 			if (count($this->players) < MAXCLIENTS) {
@@ -323,6 +361,7 @@ class Server implements MessageComponentInterface {
 				$conn->my_moves = 0; // how many times have I moved idk why
 				//$conn->tech = 0; // Preferred fishing technique. (0-3)
 				$conn->my_catch = [0]; // This array contains the score of this client
+				$conn->player = true;
 			}
 
 			else{
@@ -336,9 +375,19 @@ class Server implements MessageComponentInterface {
 
 
 	public function finish(ConnectionInterface $from, $catch){
+		/*!
+		Process end of the turn of a player: calculates new population,
+		regeneration and assign new turn if applicable.
+
+		@param ConnectionInterface $from
+		This is the client (socket) ending their turn.
+		@param $catch
+		The amount of units caught in their turn.
+		*/
+
 		$from->my_turn = false;
 		$from->my_moves += 1;
-		$from->my_catch = array_merge($from->my_catch, array($catch)); //What the actual fuck
+		$from->my_catch = array_merge($from->my_catch, array($catch)); //What the actual f*ck
 		echo sprintf("Player %d has finished their turn \n", $from->resourceId);
 		echo "Their catch so far is as follows:\n";
 		print_r($from->my_catch);
@@ -365,6 +414,12 @@ class Server implements MessageComponentInterface {
 
 
 	public function statInit(ConnectionInterface $conn){
+		/*!
+		Prepares and sends game statistics to spectators.
+
+		@param ConnectionInterface $conn
+		This is the client (socket) who asked for the stats.
+		*/
 		$names = $this->getNames();
 		$colors = $this->getColors();
 		$catches = $this->getCatches();
@@ -390,6 +445,13 @@ class Server implements MessageComponentInterface {
 
 
 	public function ready(ConnectionInterface $conn){
+		/*!
+		Triggers when a client marks themselves as ready/unready,
+		set their status accordingly and notify everyone.
+
+		@param ConnectionInterface $conn
+		This is the client (socket) marked as ready.
+		*/
 		$data = $this->setReady($conn);
 		$this->encodeAndBroadcast($data);
 
@@ -400,6 +462,14 @@ class Server implements MessageComponentInterface {
 
 
 	public function listen(ConnectionInterface $conn){
+		/*!
+		Triggers when all clients are ready. Sets the client in
+		a listener state so when all clients are listening, the
+		game can start.
+
+		@param ConnectionInterface $conn
+		This is the client (socket) marked as listening.
+		*/
 		$this->listeners = 0;
 		if ($conn->is_listening == false) {
 			$conn->is_listening = true;
@@ -445,17 +515,15 @@ class Server implements MessageComponentInterface {
 	Assigns turn to whoever is next.
 	*/
 	foreach ($this->players as $client) {
-		$client->my_turn = false; //set everybody's turn as false
+		$client->my_turn = false;
 	}
 
-	$id_of_next = $this->guessTurn(); //connectionId of who's next
+	$id_of_next = $this->guessTurn();
 	echo "-----------------\n";
 	echo sprintf("Player " . $id_of_next . " is now playing \n");
 
 	foreach ($this->players as $client) {
-		//echo "I'm at client number " . $client->resourceId . "\n";
 		if ($id_of_next == $client->resourceId) {
-			//echo "This player should move now!\n";
 			$client->my_turn = true;
 
 			$jason = ["type" => "turn","name" => $client->uname, "color" => $client->ucolor, "message" => $client->resourceId];
@@ -467,23 +535,24 @@ class Server implements MessageComponentInterface {
 	$this->broadcast($msg);
 	}
 
+
 	public function guessTurn(){
 		/*!
 		Determines who's next in a round.
+
 		@retval int $resourceId
 		The connection ID whose turn is ahead.
 		*/
 		$players = array();
 		foreach ($this->players as $client) {
-			//check how many times a client has played
 			$players[$client->resourceId] = $client->my_moves;
 		}
 
 		$whos_next = current(array_keys($players, min($players)));
 
 		return $whos_next;
-
 	}
+
 
 	public function whoIsOnline(ConnectionInterface $conn){
 		/*!
@@ -496,8 +565,9 @@ class Server implements MessageComponentInterface {
 		$names = $this->getNames();
 		$colors = $this->getColors();
 		$data = ["type" => "users", "names" => $names, "colors" => $colors];
-		$this->encodeAndSend($conn, $data)
+		$this->encodeAndSend($conn, $data);
 	}
+
 
 	public function tellJoin(ConnectionInterface $conn){
 		/*!
@@ -530,9 +600,11 @@ class Server implements MessageComponentInterface {
 		}
 	}
 
+
 	public function setReady(ConnectionInterface $conn){
 		/*!
 		Toggles ready status for a client.
+
 		@param ConnectionInterface 
 		$conn This is the socket (client) that will be marked as ready.
 		@retval string $readymsg
@@ -554,6 +626,7 @@ class Server implements MessageComponentInterface {
 
 		return $readymsg;
 	}
+
 
 	public function checkReady(){
 		/*!
@@ -579,11 +652,13 @@ class Server implements MessageComponentInterface {
 		return $all_ready;
 	}
 
+
 	public function onError(ConnectionInterface $conn, \Exception $e) {
 		/*!
 		Override with exception handling and such.
 		*/
 	}
+
 
 	public function resetValues(){
 		/*!
@@ -603,6 +678,7 @@ class Server implements MessageComponentInterface {
 		$this->detpop = [];
 	}
 
+
 	public function endRound(){
 		/*!
 		Ends the round.
@@ -611,7 +687,7 @@ class Server implements MessageComponentInterface {
 		*/
 		$this->current_round += 1;
 
-		if ($SURVIVAL = "0") {//!$this->survival
+		if ($SURVIVAL = "0") {
 			//check rounds
 			if ($this->current_round > MAXROUNDS) {
 				$this->endGame();
@@ -632,6 +708,7 @@ class Server implements MessageComponentInterface {
 		$this->assignTurn();
 
 	}
+
 
 	public function endGame(){
 		/*!
@@ -665,6 +742,7 @@ class Server implements MessageComponentInterface {
 		echo "The game has finished.\n";
 	}
 
+
 	public function play(){
 		/*!
 		Starts the game about fish.
@@ -679,13 +757,6 @@ class Server implements MessageComponentInterface {
 		$jason = ["type" => "start", "message" => $this->pop];
 		$msg = json_encode($jason);
 		$this->broadcast($msg);
-
-		//while there are enough fish
-		//asign turn to player, other clients block ui
-		//listen for end of turn
-		//get catch for player, calculate stuff
-		//broadcast new stuff to players
-		//end of loop
 	}
 }
 ?>
