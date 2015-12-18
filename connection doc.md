@@ -5,17 +5,18 @@ When a client connects to the server, a `$conn` object is created. This object (
 
 ##Connection Structure
 
-A `$conn` object has the following variables if connecting from a playing-client:
+A `$conn` object has the following variables if connecting from a playing-client, they are all initialized in the  `token` method:
 
 ###Player handling variables
 - `$is_listening` - listening status (bool) of the connection. A listening connection is a player currently ingame. Initialized as *false*.
-	- This variable is set in `onMessage` method.
+	- This variable is set in `listen` method.
 - `$is_ready` - readiness status (as bool) of the connection. Initialized as *false*.
 	- This variable is set in `setReady` method.
 - `$my_moves` - number of times this connection has played.
-	- This variable is set in `onMessage` method.
+	- This variable is set in `finish` method.
 - `$my_turn` - status (as bool) of the connection's turn. *Is it my turn?*
-	- This variable is set in `onMessage` method.
+	- This variable is set in both `assignTurn` and `finish` methods.
+-`$player` - status (bool) of the connection. *Am I a player?* Initialized as *false*.
 - `resourceId` - ID of the client, assigned automatically upon connection.
 - `$uname` - the server-assigned name (as a string) for the connection.
 	- This variable is set in `assignName` method.
@@ -25,4 +26,4 @@ A `$conn` object has the following variables if connecting from a playing-client
 ###Game specific variables
 
 - `my_catch` - an array containing the overall catch for this connection. Initialized with *0* as a first element.
-	- This variable is set in `onMessage` method.
+	- This variable is set in `finish` method.

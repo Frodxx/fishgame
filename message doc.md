@@ -21,43 +21,51 @@ Messages *usually* contain the following JSON structure:
 
 ##Message Type
 
-The "type" name is checked by clients and the server in order to operate. There are 18 different "type" values.
+The "type" name is checked by clients and the server in order to operate. There are 18 different "type" values. There is a method associated with each client->server value, they share the same name except when specified:
 
+###Server-side "types"
 - **action**: triggers action messages, such as */me goes to the Beach* in chat.
-	- Used in `onMessage` method.
-- **catch**: used to tell players a specific client has caught some fish. Only used in server->client direction.
-	-Used in `onMessage` method.
+	- Used in the `text` method.
 - **end**: used to tell the server a client has finished their turn. Only used in client->server direction.
+	- Used in the `finish` method.
+- **listen**: triggers UI blocking on clients when the game starts. Only used in client->server direction.
+- **ready**: sets clients' ready status as true.
+	- Used in `ready` and `setReady` methods.
+- **statInit**: used to retrieve current information of the game to inform spectators.
+- **system**: system messages that are generally sent to one client, like notices or announcements. Only used in server->client direction.
+	- Used in `onOpen` and `play` methods.
+- **text**: the standard type of message, when a client sends text in chat.
+- **token**: checks type of connection (Player or Spectator).
+- **unready**: sets clients' ready status as false.
+	- Used in `setReady` method.
+
+###Client-side "types"
+
+- **catch**: used to tell players a specific client has caught some fish. Only used in server->client direction.
+	-Used in `finish` method.
 - **handshake**: used to assign name and color to a client on new connection. Only used in server->client direction.
 	- Used in `assignName` method.
 - **join**: triggers join notices on clients. Only used in server->client direction.
 	- Used in `tellJoin` method.
-- **listen**: triggers UI blocking on clients when the game starts. Only used in client->server direction.
-	- Used in `onMessage` method.
 - **over**: triggers the end of the game. Only used in server->client direction.
 	- Used in `endGame` method.
 - **part**: triggers part notices on clients. Only used in server->client direction.
 	- Used in `tellPart` method.
 - **ready**: sets clients' ready status as true.
-	- Used in `setReady` method.
+	- Used in `ready` and `setReady` methods.
 - **repop**: used at the end of a round to regenerate population. Only used in server->client direction.
 	- Used in `endRound` method.
 - **start**: starts the game on each client. Only used in server->client direction.
 	- Used in `play` method.
 - **statInit**: used to retrieve current information of the game to inform spectators.
-	- Used in `onMessage` method.
-- **system**: system messages that are generally sent to one client, like notices or announcements. Only used in server->client direction.
-	- Used in `onOpen` and `play` methods.
 - **text**: the standard type of message, when a client sends text in chat.
-	- Used in `onMessage` method.
 - **token**: checks type of connection (Player or Spectator).
-	- Used in `onMessage` method.
 - **turn**: triggers UI unblocking on clients when it's their turn. Only used in server->client direction.
-	- Used in `onMessage` method.
+	- Used in `assignTurn` method.
 - **unready**: sets clients' ready status as false.
 	- Used in `setReady` method.
 - **users**: retrieves players on the room.
-	- Used in `onMessage` method.
+	- Used in `whoIsOnline` method.
 
 
 ##Message Name
@@ -95,20 +103,20 @@ There are some special cases in which the message structure is different:
 
 - **im**: used in client->server direction to set the connection type. Values can be either `player` or `spectator`.
 - **catches**: used in server->client direction to notify clients the detailed (cumulative) catch of each player.
-	- Used in `OnMessage` method.
-	- Used in `endGame` method.
+	- Used in `statInit` method.
+	- Used in `endGame` method though this info is no longer used by the clients.
 - **colors**: used in server->client direction to notify clients the colors of the connected players.
-	- Used in `OnMessage` method.
+	- Used in `statIinit` method.
 	-	Used in `whoIsOnline` method.
 	- Used in `endGame` method.
 - **detpop**: used in server->client direction to notify spectators the cumulative population.
-	- Used in `OnMessage` method.
+	- Used in `statInit` method.
 - **names**: used in server->client direction to notify clients the names of the connected players.
-	- Used in `OnMessage` method.
+	- Used in `statInit` method.
 	-	Used in `whoIsOnline` method.
 	- Used in `endGame` method.
 - **pop**: used in server->client direction to notify spectators the actual population.
-	- Used in `OnMessage` method.
+	- Used in `statInit` method.
 
 ###Special Types
 - **howmany**: **UNUSED** - used in client->server (specifically spectators->server) to ask how many players are connected.
