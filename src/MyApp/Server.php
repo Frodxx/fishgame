@@ -285,8 +285,20 @@ class Server implements MessageComponentInterface {
 				$catches[] = 0;	
 			}
 		}
+		//pack catches in an array
+		$new_catches = [];
 
-		return $catches;
+
+		$new_catches = array();
+		for ($j=0; $j < count($catches); $j++) {
+			$aux= [0];
+			for ($i=1; $i < count($catches[$j]); $i++) {
+				$aux[] = $aux[$i-1] + $catches[$j][$i];
+			}
+			$new_catches[] = $aux;
+		}
+
+		return $new_catches;
 	}
 
 
@@ -424,20 +436,7 @@ class Server implements MessageComponentInterface {
 		$colors = $this->getColors();
 		$catches = $this->getCatches();
 
-		//pack catches in an array
-		$new_catches = [];
-
-
-		$new_catches = array();
-		for ($j=0; $j < count($catches); $j++) {
-			$aux= [0];
-			for ($i=1; $i < count($catches[$j]); $i++) {
-				$aux[] = $aux[$i-1] + $catches[$j][$i];
-			}
-			$new_catches[] = $aux;
-		}
-
-		$data = ["type" => "statInit", "names" => $names, "colors" => $colors, "pop" => $this->pop, "detpop" => $this->detpop, "catches" =>$new_catches];
+		$data = ["type" => "statInit", "names" => $names, "colors" => $colors, "pop" => $this->pop, "detpop" => $this->detpop, "catches" =>$catches];
 		$this->encodeAndSend($conn, $data);
 
 		echo "Sent initial values to spectators\n";
@@ -615,16 +614,15 @@ class Server implements MessageComponentInterface {
 			$conn->is_ready = false;
 			echo "Connection {$conn->resourceId} is now marked as unready\n";
 			$jason = ["type" => "unready","name" => $conn->uname, "color" => $conn->ucolor];
-			$readymsg = json_encode($jason);
+
 		}
 		else{
 			$conn->is_ready = true;
 			echo "Connection {$conn->resourceId} is now marked as ready\n";
 			$jason = ["type" => "ready","name" => $conn->uname, "color" => $conn->ucolor];
-			$readymsg = json_encode($jason);
 		}
 
-		return $readymsg;
+		return $jason;
 	}
 
 

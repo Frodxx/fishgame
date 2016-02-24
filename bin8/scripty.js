@@ -2,7 +2,7 @@
 
 $(document).ready(function(){
 			var IP = '10.12.129.75';
-			var port = '8080';
+			var port = '8087';
 			var ws = 'ws://' + IP + ':' + port
 			console.log(ws);
 			var conn = new WebSocket(ws);
