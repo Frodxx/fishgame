@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # The Fish Game
 
 This is a digital rendition about The Fish Game, developed and published by The Cloud Institute for Sustainability Education.
@@ -138,3 +139,6 @@ The Fish Game (c) 1995-2015 The Cloud Institute for Sustainability Education.
 
 This digital rendition of The Fish Game is licensed under a MIT License.
 Read [LICENSE](LICENSE) for more information.
+=======
+# fishgame
+>>>>>>> 542160e3b58f4c3af89e346d7b8d781018ff7766
